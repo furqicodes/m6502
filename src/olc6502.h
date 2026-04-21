@@ -46,6 +46,54 @@ int olc6502_init(olc6502_t* cpu);
 int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles, memory_t* mem);
 
 
+/* Helper functions */
+
+/**
+* @brief Fetch an operand from memory and consume 1 cycle
+*
+* @param cpu Pointer to the CPU state
+* @param mem Pointer to the memory
+* @param cycles Pointer to the remaining cycles, which will be decremented by 1
+* 
+* @return The byte value fetched from memory at the current PC
+*/
+uint8_t fetch_operand(olc6502_t* cpu, memory_t* mem, int32_t* cycles);
+
+/**
+ * @brief Get the absolute address for an instruction and consume 2 cycles
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param mem Pointer to the memory
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 2
+ * 
+ * @return The absolute address calculated from the next two bytes in memory
+ *
+ */
+uint16_t get_absolute_address(olc6502_t* cpu, memory_t* mem, int32_t* cycles);
+
+/**
+ * @brief Push a 16-bit word onto the stack and consume 2 cycles
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param mem Pointer to the memory
+ * @param value The 16-bit value to push onto the stack
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 2
+ * 
+ * This function pushes the high byte of the value first, then the low byte, and updates the stack pointer accordingly.
+ */
+void push_word_to_stack(olc6502_t* cpu, memory_t* mem, uint16_t value, int32_t* cycles);
+
+/**
+ * @brief Pull a 16-bit word from the stack and consume 2 cycles
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param mem Pointer to the memory
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 2
+ * 
+ * @return The 16-bit value pulled from the stack, with the low byte pulled first followed by the high byte
+ */
+uint16_t pull_word_from_stack(olc6502_t* cpu, memory_t* mem, int32_t* cycles);
+
 // External event functions. In hardware these represent pins that are asserted
 // to produce a change in state.
 void olc6502_reset(olc6502_t* cpu);	                    // Reset Interrupt - Forces CPU into known state
