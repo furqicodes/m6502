@@ -8,4 +8,6 @@ DEVELHELP ?= 1
 
 QUIET ?= 1
 
+USEMODULE += shell
+
 include $(RIOTBASE)/Makefile.include
