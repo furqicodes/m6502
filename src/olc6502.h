@@ -4,15 +4,18 @@
 
 #include "memory.h"
 
-enum ProcessorStatusFlags {
-    CARRY_FLAG = 1 << 0,
-    ZERO_FLAG = 1 << 1,
-    INTERRUPT_DISABLE_FLAG = 1 << 2,
-    DECIMAL_MODE_FLAG = 1 << 3,         // Note: The 6502 does not support decimal mode in all variants, but we include it for completeness.
-    BREAK_COMMAND_FLAG = 1 << 4,
-    UNUSED_FLAG = 1 << 5,
-    OVERFLOW_FLAG = 1 << 6,
-    NEGATIVE_FLAG = 1 << 7
+union Flags {
+    uint8_t value;
+    struct {
+        uint8_t C : 1; // Carry Flag
+        uint8_t Z : 1; // Zero Flag
+        uint8_t I : 1; // Interrupt Disable Flag
+        uint8_t D : 1; // Decimal Mode Flag
+        uint8_t B : 1; // Break Command Flag
+        uint8_t U : 1; // Unused Flag (always set to 1)
+        uint8_t V : 1; // Overflow Flag
+        uint8_t N : 1; // Negative Flag
+    };
 };
 
 typedef struct {
@@ -20,7 +23,7 @@ typedef struct {
     uint8_t X;      // X Register
     uint8_t Y;      // Y Register
     uint8_t SP;     // Stack Pointer
-    uint8_t PS;     // Processor Status Flags
+    union Flags PS;     // Processor Status Flags
     uint16_t PC;    // Program Counter
 
 } olc6502_t;
