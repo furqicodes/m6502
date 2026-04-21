@@ -34,6 +34,18 @@ typedef struct {
 */
 int olc6502_init(olc6502_t* cpu);
 
+/**
+ * @brief Execute the CPU for a specified number of cycles
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param cycles The number of cycles to execute
+ * @param mem Pointer to the memory 
+ *
+ * @return The number of cycles consumed
+ */
+int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles, memory_t* mem);
+
+
 // External event functions. In hardware these represent pins that are asserted
 // to produce a change in state.
 void olc6502_reset(olc6502_t* cpu);	                    // Reset Interrupt - Forces CPU into known state

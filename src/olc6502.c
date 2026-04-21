@@ -17,3 +17,9 @@ void olc6502_reset(olc6502_t* cpu) {
     cpu->PS.I = 1; // Set Interrupt Disable Flag
     cpu->PS.D = 0; // Clear Decimal Mode Flag
 }
+
+int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles, memory_t* mem) {
+    uint32_t requested_cycles = cycles;
+    while (cycles > 0) {
+    return requested_cycles - cycles;
+}
