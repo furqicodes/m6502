@@ -1,5 +1,6 @@
 #include "olc6502.h"
 #include "include/olc6502_constants.h"
+#include <stdbool.h>
 
 int olc6502_init(olc6502_t* cpu) {
     cpu->A = 0;
@@ -18,9 +19,56 @@ void olc6502_reset(olc6502_t* cpu) {
     cpu->PS.D = 0; // Clear Decimal Mode Flag
 }
 
+bool interrupt_flag_should_be_set = false;
+uint8_t interrupt_disable_flag_next;
 int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles, memory_t* mem) {
     uint32_t requested_cycles = cycles;
     while (cycles > 0) {
+        uint8_t opcode = fetch_operand(cpu, mem, &cycles);
+
+        // Delayed flag setting logic for SEI/CLI: the effect of changing the Interrupt Disable Flag is delayed one instruction because the flag is changed after IRQ is polled, allowing an IRQ to be serviced between this and the next instruction if the flag was previously 0. This means that if SEI is executed, interrupts will still be serviced until the next instruction is executed, and if CLI is executed, interrupts will not be serviced until the next instruction is executed.
+        if (interrupt_flag_should_be_set) {
+            cpu->PS.I = interrupt_disable_flag_next;
+            interrupt_disable_flag_next = false;
+        }
+        
+        switch (opcode)
+        {
+        // Flags type instructions
+        case INS_CLC:
+            cpu->PS.C = 0;
+            cycles--;
+            break;
+        case INS_SEC:
+            cpu->PS.C = 1;
+            cycles--;
+            break;
+        case INS_CLD:
+            cpu->PS.D = 0;
+            cycles--;
+            break;
+        case INS_SED:
+            cpu->PS.D = 1;
+            cycles--;
+            break;
+        case INS_CLI:
+            interrupt_disable_flag_next = 0;
+            interrupt_flag_should_be_set = true;
+            cycles--;
+            break;
+        case INS_SEI:
+            interrupt_disable_flag_next = 1;
+            interrupt_flag_should_be_set = true;
+            cycles--;
+            break;
+        case INS_CLV:
+            cpu->PS.V = 0;
+            cycles--;
+            break;
+        default:
+            break;
+        }
+    }
     return requested_cycles - cycles;
 }
 
