@@ -30,6 +30,16 @@ int main(void)
     if (!olc6502_init(&cpu)) {
         printf("CPU initialized to power-up state\n");
     }
+
+    memory_set(&mem, 0xFFFC, INS_JMP_ABS); // Place a JMP instruction at the reset vector
+    memory_set(&mem, 0xFFFD, 0x00); // Set low byte of reset vector
+    memory_set(&mem, 0xFFFE, 0x80); // Set high byte of reset vector to 0x8000, so PC starts at 0x800
+    memory_set(&mem, 0x8000, INS_JSR); 
+    memory_set(&mem, 0x8001, 0x00); // Set low byte of JSR target
+    memory_set(&mem, 0x8002, 0x40); // Set high byte of JSR target to 0x9000
+    memory_set(&mem, 0x8003, INS_CLI);
+    memory_set(&mem, 0x8004, INS_NOP);
+    memory_set(&mem, 0x4000, INS_RTS); 
     
     char buffer[SHELL_DEFAULT_BUFSIZE];
     shell_run(NULL, buffer, SHELL_DEFAULT_BUFSIZE);
