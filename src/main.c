@@ -3,6 +3,7 @@
 
 #include "memory.h"
 #include "olc6502.h"
+#include "include/olc6502_constants.h"
 
 void print_cpu_status(olc6502_t* cpu);
 
@@ -28,5 +29,5 @@ int main(void)
 
 void print_cpu_status(olc6502_t* cpu) {
     printf("A: 0x%02X, X: 0x%02X, Y: 0x%02X, SP: 0x%02X, PS: 0b%08b, PC: 0x%04X\n",
-           cpu->A, cpu->X, cpu->Y, cpu->SP, cpu->PS, cpu->PC);
+           cpu->A, cpu->X, cpu->Y, cpu->SP, cpu->PS.value, cpu->PC);
 }

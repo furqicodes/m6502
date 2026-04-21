@@ -1,20 +1,19 @@
 #include "olc6502.h"
+#include "include/olc6502_constants.h"
 
 int olc6502_init(olc6502_t* cpu) {
     cpu->A = 0;
     cpu->X = 0;
     cpu->Y = 0;
-    cpu->PC = 0xFFFC;
-    cpu->SP = 0xFD;
-    cpu->PS = 0 | INTERRUPT_DISABLE_FLAG;
+    cpu->PC = RESET_VECTOR;
+    cpu->SP = DEFAULT_STACK_POINTER;
+    cpu->PS.value = 0x04; // Clear all flags except the Interrupt Disable Flag
     return 0;
 }
 
 void olc6502_reset(olc6502_t* cpu) {
-    cpu->PC = 0xFFFC;
-    cpu->SP = 0xFD;
-    // Enable Interrupt Disable Flag and clear Decimal Mode Flag
-    cpu->PS |= INTERRUPT_DISABLE_FLAG;
-    cpu->PS &= ~DECIMAL_MODE_FLAG;
+    cpu->PC = RESET_VECTOR;
+    cpu->SP = DEFAULT_STACK_POINTER;
+    cpu->PS.I = 1; // Set Interrupt Disable Flag
+    cpu->PS.D = 0; // Clear Decimal Mode Flag
 }
-
