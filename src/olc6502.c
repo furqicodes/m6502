@@ -1,6 +1,8 @@
 #include "olc6502.h"
 #include "include/olc6502_constants.h"
 #include <stdbool.h>
+// REMOVEME
+#include <stdio.h>
 
 int olc6502_init(olc6502_t* cpu) {
     cpu->A = 0;
@@ -63,6 +65,34 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles, memory_t* mem) {
             break;
         case INS_CLV:
             cpu->PS.V = 0;
+            cycles--;
+            break;
+        // Jump type instructions
+        case INS_JMP_ABS:
+            cpu->PC = get_absolute_address(cpu, mem, &cycles);
+            break;
+        case INS_JMP_IND:
+            printf("NOT IMPLEMENTED: JMP (indirect)\n");
+            break;
+        case INS_JSR:
+            uint16_t jump_address = get_absolute_address(cpu, mem, &cycles);
+            push_word_to_stack(cpu, mem, cpu->PC - 1, &cycles); // Push return
+            cpu->PC = jump_address;
+            cycles -= 1; // FIXME: integrate the cycle logic into the functions
+            break;
+        case INS_RTS:
+            cpu->PC = pull_word_from_stack(cpu, mem, &cycles) + 1; // Pull return address and add 1 to get the correct return point
+            cycles -= 3;
+            break;
+        case INS_BRK:
+            printf("NOT IMPLEMENTED: BRK\n");
+            break;
+        case INS_RTI:
+            printf("NOT IMPLEMENTED: RTI\n");
+            break;
+        // ...
+        case INS_NOP:
+            printf("NOP executed at PC: 0x%04X\n", cpu->PC - 1);
             cycles--;
             break;
         default:
