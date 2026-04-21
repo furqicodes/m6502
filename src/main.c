@@ -8,6 +8,7 @@
 void print_cpu_status(olc6502_t* cpu);
 
 static memory_t mem = { .data = {0} }; // Initialize memory with zeros to prevent uninitialized access warnings
+static olc6502_t cpu; // Declare CPU instance
 
 int main(void)
 {
@@ -15,7 +16,6 @@ int main(void)
         printf("%d bytes of memory initialized with zeros\n", sizeof(mem.data));
     }
 
-    olc6502_t cpu;
     if (!olc6502_init(&cpu)) {
         printf("CPU initialized to power-up state\n");
     }
