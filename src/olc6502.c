@@ -36,6 +36,23 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
         
         switch (opcode)
         {
+        // Access type instructions
+        case INS_LDA_IM:
+            cpu->A = fetch_operand(cpu, &cycles);
+            // Set Zero Flag and Negative Flag based on the value loaded into A
+            cpu->PS.Z = (cpu->A == 0);
+            cpu->PS.N = (cpu->A & 0x80) != 0;
+            break;
+        case INS_LDX_IM:
+            cpu->X = fetch_operand(cpu, &cycles);
+            cpu->PS.Z = (cpu->X == 0);
+            cpu->PS.N = (cpu->X & 0x80) != 0;
+            break;
+        case INS_LDY_IM:
+            cpu->Y = fetch_operand(cpu, &cycles);
+            cpu->PS.Z = (cpu->Y == 0);
+            cpu->PS.N = (cpu->Y & 0x80) != 0;
+            break;
         // Flags type instructions
         case INS_CLC:
             cpu->PS.C = 0;
