@@ -4,6 +4,7 @@
 #include "ti74ls138.h"
 #include "memory.h"
 
+#ifdef TEST
 static m74ls138_t ce;
 static memory_t mem;
 
@@ -56,3 +57,4 @@ int main(void) {
 
     return 0;
 }
+#endif
