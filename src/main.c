@@ -43,7 +43,18 @@ int main(void)
     bus_write_byte(&ce, 0x8001, 0x00); // Set low byte of JSR target
     bus_write_byte(&ce, 0x8002, 0x40); // Set high byte of JSR target to 0x9000
     bus_write_byte(&ce, 0x8003, INS_CLI);
-    bus_write_byte(&ce, 0x8004, INS_NOP);
+    bus_write_byte(&ce, 0x8004, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8005, 0x24);
+    bus_write_byte(&ce, 0x8006, INS_LDA_ZP);
+    bus_write_byte(&ce, 0x8007, 0x1F);
+    bus_write_byte(&ce, 0x8008, INS_LDA_ABS);
+    bus_write_byte(&ce, 0x8009, 0x01);
+    bus_write_byte(&ce, 0x800A, 0x80);
+    bus_write_byte(&ce, 0x800B, INS_LDX_IM);
+    bus_write_byte(&ce, 0x800C, 0x10);
+    bus_write_byte(&ce, 0x800D, INS_LDA_ZPX);
+    bus_write_byte(&ce, 0x800E, 0x0F);
+    bus_write_byte(&ce, 0x001F, 0b10000000);
     bus_write_byte(&ce, 0x4000, INS_RTS);
 
     char buffer[SHELL_DEFAULT_BUFSIZE];
