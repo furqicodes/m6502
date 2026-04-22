@@ -70,6 +70,8 @@ uint8_t fetch_operand(olc6502_t* cpu, int32_t* cycles);
  */
 uint16_t get_absolute_address(olc6502_t* cpu, int32_t* cycles);
 
+uint16_t get_zp_address(olc6502_t* cpu, int32_t* cycles);
+
 /**
  * @brief Push a 16-bit word onto the stack and consume 2 cycles
  * 

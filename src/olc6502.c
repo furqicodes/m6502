@@ -109,6 +109,12 @@ uint16_t get_absolute_address(olc6502_t* cpu, int32_t* cycles) {
     return abs_address;
 }
 
+uint16_t get_zp_address(olc6502_t* cpu, int32_t* cycles) {
+    uint8_t zp_address = bus_read_byte(cpu->CE, cpu->PC++);
+    *cycles -= 1;
+    return zp_address;
+}
+
 uint8_t fetch_operand(olc6502_t* cpu, int32_t* cycles) {
     *cycles -= 1;
     return bus_read_byte(cpu->CE, cpu->PC++);
