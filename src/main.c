@@ -4,6 +4,7 @@
 #include "memory.h"
 #include "olc6502.h"
 #include "include/olc6502_constants.h"
+#include "ti74ls138.h"
 
 #include "shell.h"
 #include <stdlib.h>
@@ -18,7 +19,8 @@ SHELL_COMMAND(print, "Print the current CPU status", print_command);
 SHELL_COMMAND(reset, "Reset the CPU to its initial state", reset_command);
 SHELL_COMMAND(inspect, "Inspect memory at a specified address range", inspect_memory_command);
 
-static memory_t mem = { .data = {0} }; // Initialize memory with zeros to prevent uninitialized access warnings
+static memory_t mem; // Initialize memory with zeros to prevent uninitialized access warnings
+static m74ls138_t ce;
 static olc6502_t cpu; // Declare CPU instance
 
 int main(void)
@@ -27,20 +29,24 @@ int main(void)
         printf("%d bytes of memory initialized with zeros\n", sizeof(mem.data));
     }
 
+    if (!m74ls138_init(&ce, &mem)) {
+        printf("74LS138 decoder initialized and connected to memory bus\n");
+    }
+
     if (!olc6502_init(&cpu)) {
         printf("CPU initialized to power-up state\n");
     }
 
-    memory_set(&mem, 0xFFFC, INS_JMP_ABS); // Place a JMP instruction at the reset vector
-    memory_set(&mem, 0xFFFD, 0x00); // Set low byte of reset vector
-    memory_set(&mem, 0xFFFE, 0x80); // Set high byte of reset vector to 0x8000, so PC starts at 0x800
-    memory_set(&mem, 0x8000, INS_JSR); 
-    memory_set(&mem, 0x8001, 0x00); // Set low byte of JSR target
-    memory_set(&mem, 0x8002, 0x40); // Set high byte of JSR target to 0x9000
-    memory_set(&mem, 0x8003, INS_CLI);
-    memory_set(&mem, 0x8004, INS_NOP);
-    memory_set(&mem, 0x4000, INS_RTS); 
-    
+    // memory_set(&mem, 0xFFFC, INS_JMP_ABS); // Place a JMP instruction at the reset vector
+    // memory_set(&mem, 0xFFFD, 0x00); // Set low byte of reset vector
+    // memory_set(&mem, 0xFFFE, 0x80); // Set high byte of reset vector to 0x8000, so PC starts at 0x800
+    // memory_set(&mem, 0x8000, INS_JSR); 
+    // memory_set(&mem, 0x8001, 0x00); // Set low byte of JSR target
+    // memory_set(&mem, 0x8002, 0x40); // Set high byte of JSR target to 0x9000
+    // memory_set(&mem, 0x8003, INS_CLI);
+    // memory_set(&mem, 0x8004, INS_NOP);
+    // memory_set(&mem, 0x4000, INS_RTS);
+
     char buffer[SHELL_DEFAULT_BUFSIZE];
     shell_run(NULL, buffer, SHELL_DEFAULT_BUFSIZE);
 
