@@ -2,7 +2,12 @@
 #include "memory.h"
 
 int memory_init(memory_t *mem) {
-    for (int i = 0; i < MEMORY_MAX_SIZE; i++) {
+    if ( TOTAL_MEMORY_SIZE > MEMORY_MAX_SIZE ) {
+        return -1; // Error: Total memory size exceeds maximum allowed
+    }
+
+    // TODO: Maybe reset only some banks instead of the whole memory
+    for (int i = 0; i < TOTAL_MEMORY_SIZE; i++) {
         mem->data[i] = 0;
     }
     return 0;
