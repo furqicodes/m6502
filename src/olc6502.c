@@ -43,6 +43,24 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->PS.Z = (cpu->A == 0);
             cpu->PS.N = (cpu->A & 0x80) != 0;
             break;
+        case INS_LDA_ZP:
+            cpu->A = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cpu->PS.Z = (cpu->A == 0);
+            cpu->PS.N = (cpu->A & 0x80) != 0;
+            break;
+        case INS_LDA_ZPX:
+            uint8_t zp_address = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF; // Wrap around zero page
+            cpu->A = bus_read_byte(cpu->CE, zp_address);
+            cycles -= 2;
+            cpu->PS.Z = (cpu->A == 0);
+            cpu->PS.N = (cpu->A & 0x80) != 0;
+            break;
+        case INS_LDA_ABS:
+            cpu->A = bus_read_byte(cpu->CE, get_absolute_address(cpu, &cycles));
+            cycles -= 1; // Additional cycle for absolute addressing mode
+            cpu->PS.Z = (cpu->A == 0);
+            cpu->PS.N = (cpu->A & 0x80) != 0;
+            break;
         case INS_LDX_IM:
             cpu->X = fetch_operand(cpu, &cycles);
             cpu->PS.Z = (cpu->X == 0);
