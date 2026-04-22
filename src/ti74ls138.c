@@ -9,6 +9,13 @@ int m74ls138_init(m74ls138_t* dev, memory_t* mem) {
     return 0;
 }
 
+static inline uint16_t chip_select_cpu_ram(uint16_t virtual_address);
+static inline uint16_t chip_select_ppu(uint16_t virtual_address);
+static inline uint16_t chip_select_apu(uint16_t virtual_address);
+static inline uint16_t chip_select_expansion_rom(uint16_t virtual_address);
+static inline uint16_t chip_select_sram(uint16_t virtual_address);
+static inline uint16_t chip_select_prg_rom(uint16_t virtual_address);
+
 uint16_t decode_address(m74ls138_t* dev, uint16_t emulated_address) {
     // Only check A15-A13 (3 bits) for device selection
     uint8_t address_bits = (emulated_address >> 13) & 0x07; // Extract A15-A13

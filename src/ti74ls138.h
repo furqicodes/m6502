@@ -69,15 +69,3 @@ void bus_write_byte(m74ls138_t* dev, uint16_t address, uint8_t value);
 uint8_t bus_read_byte(m74ls138_t* dev, uint16_t address);
 void bus_write_word(m74ls138_t* dev, uint16_t address, uint16_t value);
 uint16_t bus_read_word(m74ls138_t* dev, uint16_t address);
-
-static inline uint16_t chip_select_cpu_ram(uint16_t virtual_address);
-
-static inline uint16_t chip_select_ppu(uint16_t virtual_address);
-
-static inline uint16_t chip_select_apu(uint16_t virtual_address);
-
-static inline uint16_t chip_select_expansion_rom(uint16_t virtual_address);
-
-static inline uint16_t chip_select_sram(uint16_t virtual_address);
-
-static inline uint16_t chip_select_prg_rom(uint16_t virtual_address);
