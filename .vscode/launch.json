@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug RIOT (native32)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/bin/native32/m6502.elf",
+            "args": ["tap0"],
+            "cwd": "${workspaceFolder}/src",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "RIOT: build"
+        }
+    ]
+}
