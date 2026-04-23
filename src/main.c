@@ -37,25 +37,31 @@ int main(void)
     }
 
     bus_write_byte(&ce, 0xFFFC, INS_JMP_ABS); // Place a JMP instruction at the reset vector
-    bus_write_byte(&ce, 0xFFFD, 0x00); // Set low byte of reset vector
-    bus_write_byte(&ce, 0xFFFE, 0x80); // Set high byte of reset vector to 0x8000, so PC starts at 0x800
+    bus_write_word(&ce, 0xFFFD, 0x8000);
     bus_write_byte(&ce, 0x8000, INS_JSR); 
-    bus_write_byte(&ce, 0x8001, 0x00); // Set low byte of JSR target
-    bus_write_byte(&ce, 0x8002, 0x40); // Set high byte of JSR target to 0x9000
+    bus_write_word(&ce, 0x8001, 0x4000); // Set address of JSR target
     bus_write_byte(&ce, 0x8003, INS_CLI);
     bus_write_byte(&ce, 0x8004, INS_LDA_IM);
     bus_write_byte(&ce, 0x8005, 0x24);
     bus_write_byte(&ce, 0x8006, INS_LDA_ZP);
     bus_write_byte(&ce, 0x8007, 0x1F);
     bus_write_byte(&ce, 0x8008, INS_LDA_ABS);
-    bus_write_byte(&ce, 0x8009, 0x01);
-    bus_write_byte(&ce, 0x800A, 0x80);
+    bus_write_word(&ce, 0x8009, 0x8001);
     bus_write_byte(&ce, 0x800B, INS_LDX_IM);
     bus_write_byte(&ce, 0x800C, 0x10);
-    bus_write_byte(&ce, 0x800D, INS_LDA_ZPX);
-    bus_write_byte(&ce, 0x800E, 0x0F);
+    bus_write_byte(&ce, 0x800D, INS_LDA_ABSX);
+    bus_write_word(&ce, 0x800E, 0x4000);
+    bus_write_byte(&ce, 0x8010, INS_LDY_IM);
+    bus_write_byte(&ce, 0x8011, 0x20);
+    bus_write_byte(&ce, 0x8012, INS_LDA_ABSY);
+    bus_write_word(&ce, 0x8013, 0x3FFF);
+    bus_write_byte(&ce, 0x8015, INS_LDA_INDX);
+    bus_write_byte(&ce, 0x8016, 0x10);
+    bus_write_word(&ce, 0x0010 + 0x10, 0x8005);
     bus_write_byte(&ce, 0x001F, 0b10000000);
     bus_write_byte(&ce, 0x4000, INS_RTS);
+    bus_write_byte(&ce, 0x4010, 0x23);
+    bus_write_byte(&ce, 0x401F, 0x46);
 
     char buffer[SHELL_DEFAULT_BUFSIZE];
     shell_run(NULL, buffer, SHELL_DEFAULT_BUFSIZE);
