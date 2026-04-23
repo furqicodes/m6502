@@ -100,6 +100,14 @@ uint16_t get_absolute_addressY(olc6502_t* cpu, int32_t* cycles);
  */
 uint16_t get_indexed_indirectX(olc6502_t* cpu, int32_t* cycles);
 
+/**
+ * @brief Get the zero page address for an instruction and consume 1 cycle
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 1
+ * 
+ * @return The zero page address calculated from the next byte in memory
+ */
 uint16_t get_zp_address(olc6502_t* cpu, int32_t* cycles);
 
 /**
