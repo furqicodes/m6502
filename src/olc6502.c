@@ -157,6 +157,18 @@ uint16_t get_absolute_addressX(olc6502_t* cpu, int32_t* cycles) {
     return final_address;
 }
 
+uint16_t get_absolute_addressY(olc6502_t* cpu, int32_t* cycles) {
+    uint16_t abs_address = bus_read_word(cpu->CE, cpu->PC);
+    uint16_t final_address = abs_address + cpu->Y;
+    cpu->PC += 2;
+    *cycles -= 2;
+    // Add another cycle if page boundary is crossed
+    if ((abs_address & 0xFF00) != (final_address & 0xFF00)) {
+        *cycles -= 1;
+    }
+    return final_address;
+}
+
 uint16_t get_zp_address(olc6502_t* cpu, int32_t* cycles) {
     uint8_t zp_address = bus_read_byte(cpu->CE, cpu->PC++);
     *cycles -= 1;
