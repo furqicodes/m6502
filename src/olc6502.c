@@ -62,6 +62,28 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cycles -= 1; // Additional cycle for absolute addressing mode
             update_flags_Areg(cpu);
             break;
+        case INS_LDA_ABSX:
+            uint16_t abs_addressX = get_absolute_addressX(cpu, &cycles);
+            cpu->A = bus_read_byte(cpu->CE, abs_addressX);
+            cycles -= 1;
+            update_flags_Areg(cpu);
+            break;
+        case INS_LDA_ABSY:
+            uint16_t abs_addressY = get_absolute_addressY(cpu, &cycles);
+            cpu->A = bus_read_byte(cpu->CE, abs_addressY);
+            cycles -= 1;
+            update_flags_Areg(cpu);
+            break;
+        case INS_LDA_INDX:
+            cpu->A = bus_read_byte(cpu->CE, get_indexed_indirectX(cpu, &cycles));
+            cycles -= 2;
+            update_flags_Areg(cpu);
+            break;
+        case INS_LDA_INDY:
+            cpu->A = bus_read_byte(cpu->CE, get_indexed_indirectY(cpu, &cycles));
+            cycles -= 1;
+            update_flags_Areg(cpu);
+            break;
         case INS_LDX_IM:
             cpu->X = fetch_operand(cpu, &cycles);
             cpu->PS.Z = (cpu->X == 0);
