@@ -157,6 +157,13 @@ uint16_t get_absolute_addressX(olc6502_t* cpu, int32_t* cycles) {
     return final_address;
 }
 
+uint16_t get_indexed_indirectX(olc6502_t* cpu, int32_t* cycles) {
+    // val = PEEK(PEEK((arg + X) % 256) + PEEK((arg + X + 1) % 256) * 256)
+    uint16_t arg = get_zp_address(cpu, cycles);
+    uint16_t indirect_address = bus_read_word(cpu->CE, arg + cpu->X);
+    return indirect_address;
+}
+
 uint16_t get_absolute_addressY(olc6502_t* cpu, int32_t* cycles) {
     uint16_t abs_address = bus_read_word(cpu->CE, cpu->PC);
     uint16_t final_address = abs_address + cpu->Y;
