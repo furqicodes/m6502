@@ -164,6 +164,19 @@ uint16_t get_indexed_indirectX(olc6502_t* cpu, int32_t* cycles) {
     return indirect_address;
 }
 
+uint16_t get_indexed_indirectY(olc6502_t* cpu, int32_t* cycles) {
+    // val = PEEK(PEEK(arg) + PEEK((arg + 1) % 256) * 256 + Y)
+    uint16_t arg = get_zp_address(cpu, cycles);
+    uint16_t base_address = bus_read_word(cpu->CE, arg);
+    uint16_t final_address = base_address + cpu->Y;
+    *cycles -= 2;
+    // Add another cycle if page boundary is crossed
+    if ((base_address & 0xFF00) != (final_address & 0xFF00)) {
+        *cycles -= 1;
+    }
+    return final_address;
+}
+
 uint16_t get_absolute_addressY(olc6502_t* cpu, int32_t* cycles) {
     uint16_t abs_address = bus_read_word(cpu->CE, cpu->PC);
     uint16_t final_address = abs_address + cpu->Y;

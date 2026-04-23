@@ -101,6 +101,16 @@ uint16_t get_absolute_addressY(olc6502_t* cpu, int32_t* cycles);
 uint16_t get_indexed_indirectX(olc6502_t* cpu, int32_t* cycles);
 
 /**
+ * @brief Get the indirect address for an instruction with Y offset and consume 3 cycles (plus 1 additional cycle if page boundary is crossed)
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 3 (plus 1 additional cycle if page boundary is crossed)
+ * 
+ * @return The indirect address calculated by first adding the Y register to the next byte in memory to get an absolute address, then reading the 16-bit address from that absolute address location
+ */
+uint16_t get_indexed_indirectY(olc6502_t* cpu, int32_t* cycles);
+
+/**
  * @brief Get the zero page address for an instruction and consume 1 cycle
  * 
  * @param cpu Pointer to the CPU state
