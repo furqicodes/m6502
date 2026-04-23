@@ -70,6 +70,16 @@ uint8_t fetch_operand(olc6502_t* cpu, int32_t* cycles);
  */
 uint16_t get_absolute_address(olc6502_t* cpu, int32_t* cycles);
 
+/**
+ * @brief Get the absolute address for an instruction with X index and consume 2 cycles (plus 1 additional cycle if page boundary is crossed)
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 2 (plus 1 additional cycle if page boundary is crossed)
+ * 
+ * @return The absolute address calculated from the next two bytes in memory, with the offset of X register
+ */
+uint16_t get_absolute_addressX(olc6502_t* cpu, int32_t* cycles);
+
 uint16_t get_zp_address(olc6502_t* cpu, int32_t* cycles);
 
 /**
