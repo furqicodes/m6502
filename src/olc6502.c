@@ -21,6 +21,12 @@ void olc6502_reset(olc6502_t* cpu) {
     cpu->PS.D = 0; // Clear Decimal Mode Flag
 }
 
+static inline void update_flags_Areg(olc6502_t* cpu) {
+    // Set Zero Flag and Negative Flag based on the value in A
+    cpu->PS.Z = (cpu->A == 0);
+    cpu->PS.N = (cpu->A & 0x80) != 0;
+}
+
 bool interrupt_flag_should_be_set = false;
 uint8_t interrupt_disable_flag_next;
 int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
@@ -39,27 +45,22 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
         // Access type instructions
         case INS_LDA_IM:
             cpu->A = fetch_operand(cpu, &cycles);
-            // Set Zero Flag and Negative Flag based on the value loaded into A
-            cpu->PS.Z = (cpu->A == 0);
-            cpu->PS.N = (cpu->A & 0x80) != 0;
+            update_flags_Areg(cpu);
             break;
         case INS_LDA_ZP:
             cpu->A = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
-            cpu->PS.Z = (cpu->A == 0);
-            cpu->PS.N = (cpu->A & 0x80) != 0;
+            update_flags_Areg(cpu);
             break;
         case INS_LDA_ZPX:
             uint8_t zp_address = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF; // Wrap around zero page
             cpu->A = bus_read_byte(cpu->CE, zp_address);
             cycles -= 2;
-            cpu->PS.Z = (cpu->A == 0);
-            cpu->PS.N = (cpu->A & 0x80) != 0;
+            update_flags_Areg(cpu);
             break;
         case INS_LDA_ABS:
             cpu->A = bus_read_byte(cpu->CE, get_absolute_address(cpu, &cycles));
             cycles -= 1; // Additional cycle for absolute addressing mode
-            cpu->PS.Z = (cpu->A == 0);
-            cpu->PS.N = (cpu->A & 0x80) != 0;
+            update_flags_Areg(cpu);
             break;
         case INS_LDX_IM:
             cpu->X = fetch_operand(cpu, &cycles);
