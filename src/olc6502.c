@@ -21,7 +21,7 @@ void olc6502_reset(olc6502_t* cpu) {
     cpu->PS.D = 0; // Clear Decimal Mode Flag
 }
 
-static inline void update_flags_Areg(olc6502_t* cpu) {
+inline void update_flags_Areg(olc6502_t* cpu) {
     // Set Zero Flag and Negative Flag based on the value in A
     cpu->PS.Z = (cpu->A == 0);
     cpu->PS.N = (cpu->A & 0x80) != 0;
