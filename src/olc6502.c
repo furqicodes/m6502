@@ -210,6 +210,20 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             oops_cycle = false;
             update_flags_from_register(cpu, cpu->Y);
             break;
+        case INS_STY_ZP:
+            bus_write_byte(cpu->CE, get_zp_address(cpu, &cycles), cpu->Y);
+            cycles -= 1;
+            break;
+        case INS_STY_ZPX:
+            uint8_t sty_zpx_address = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            bus_write_byte(cpu->CE, sty_zpx_address, cpu->Y);
+            cycles -= 2;
+            break;
+        case INS_STY_ABS:
+            uint16_t sty_abs_address = get_absolute_address(cpu, &cycles);
+            bus_write_byte(cpu->CE, sty_abs_address, cpu->Y);
+            cycles -= 1;
+            break;
         // Flags type instructions
         case INS_CLC:
             cpu->PS.C = 0;
