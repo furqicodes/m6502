@@ -26,10 +26,10 @@ void olc6502_reset(olc6502_t* cpu, int32_t* cycles) {
     cpu->PC = prg_start;
 }
 
-inline void update_flags_Areg(olc6502_t* cpu) {
-    // Set Zero Flag and Negative Flag based on the value in A
-    cpu->PS.Z = (cpu->A == 0);
-    cpu->PS.N = (cpu->A & 0x80) != 0;
+inline void update_flags_from_register(olc6502_t* cpu, uint8_t reg) {
+    // Set Zero Flag and Negative Flag based on the value in the register
+    cpu->PS.Z = (reg == 0);
+    cpu->PS.N = (reg & 0x80) != 0;
 }
 
 /* The 6502 has one 8-bit ALU and one 16-bit upcounter (for PC). To calculate a,x or a,y addressing in 
@@ -63,47 +63,47 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
         // Access type instructions
         case INS_LDA_IM:
             cpu->A = fetch_operand(cpu, &cycles);
-            update_flags_Areg(cpu);
+            update_flags_from_register(cpu, cpu->A);
             break;
         case INS_LDA_ZP:
             cpu->A = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
-            update_flags_Areg(cpu);
+            update_flags_from_register(cpu, cpu->A);
             break;
         case INS_LDA_ZPX:
             uint8_t zp_address = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF; // Wrap around zero page
             cpu->A = bus_read_byte(cpu->CE, zp_address);
             cycles -= 2;
-            update_flags_Areg(cpu);
+            update_flags_from_register(cpu, cpu->A);
             break;
         case INS_LDA_ABS:
             cpu->A = bus_read_byte(cpu->CE, get_absolute_address(cpu, &cycles));
             cycles -= 1; // Additional cycle for absolute addressing mode
-            update_flags_Areg(cpu);
+            update_flags_from_register(cpu, cpu->A);
             break;
         case INS_LDA_ABSX:
             uint16_t abs_addressX = get_absolute_addressX(cpu, &cycles);
             cpu->A = bus_read_byte(cpu->CE, abs_addressX);
             cycles -= oops_cycle ? 2 : 1;
             oops_cycle = false;
-            update_flags_Areg(cpu);
+            update_flags_from_register(cpu, cpu->A);
             break;
         case INS_LDA_ABSY:
             uint16_t abs_addressY = get_absolute_addressY(cpu, &cycles);
             cpu->A = bus_read_byte(cpu->CE, abs_addressY);
             cycles -= oops_cycle ? 2 : 1;
             oops_cycle = false;
-            update_flags_Areg(cpu);
+            update_flags_from_register(cpu, cpu->A);
             break;
         case INS_LDA_INDX:
             cpu->A = bus_read_byte(cpu->CE, get_indexed_indirectX(cpu, &cycles));
             cycles -= 2;
-            update_flags_Areg(cpu);
+            update_flags_from_register(cpu, cpu->A);
             break;
         case INS_LDA_INDY:
             cpu->A = bus_read_byte(cpu->CE, get_indexed_indirectY(cpu, &cycles));
             cycles -= oops_cycle ? 2 : 1;
             oops_cycle = false;
-            update_flags_Areg(cpu);
+            update_flags_from_register(cpu, cpu->A);
             break;
         case INS_STA_ZP:
             bus_write_byte(cpu->CE, get_zp_address(cpu, &cycles), cpu->A);
@@ -144,13 +144,11 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             break;
         case INS_LDX_IM:
             cpu->X = fetch_operand(cpu, &cycles);
-            cpu->PS.Z = (cpu->X == 0);
-            cpu->PS.N = (cpu->X & 0x80) != 0;
+            update_flags_from_register(cpu, cpu->X);
             break;
         case INS_LDY_IM:
             cpu->Y = fetch_operand(cpu, &cycles);
-            cpu->PS.Z = (cpu->Y == 0);
-            cpu->PS.N = (cpu->Y & 0x80) != 0;
+            update_flags_from_register(cpu, cpu->Y);
             break;
         // Flags type instructions
         case INS_CLC:
