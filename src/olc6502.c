@@ -224,6 +224,27 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             bus_write_byte(cpu->CE, sty_abs_address, cpu->Y);
             cycles -= 1;
             break;
+        // Transfer type instructions
+        case INS_TAX:
+            cpu->X = cpu->A;
+            update_flags_from_register(cpu, cpu->X);
+            cycles -= 1;
+            break;
+        case INS_TXA:
+            cpu->A = cpu->X;
+            update_flags_from_register(cpu, cpu->A);
+            cycles -= 1;
+            break;
+        case INS_TAY:
+            cpu->Y = cpu->A;
+            update_flags_from_register(cpu, cpu->Y);
+            cycles -= 1;
+            break;
+        case INS_TYA:
+            cpu->A = cpu->Y;
+            update_flags_from_register(cpu, cpu->A);
+            cycles -= 1;
+            break;
         // Flags type instructions
         case INS_CLC:
             cpu->PS.C = 0;
