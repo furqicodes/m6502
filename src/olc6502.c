@@ -16,7 +16,7 @@ int olc6502_init(olc6502_t* cpu, m74ls138_t* ce) {
 
 void olc6502_reset(olc6502_t* cpu, int32_t* cycles) {
     cpu->PC = RESET_VECTOR;
-    cpu->SP -= 3;
+    cpu->SP = STACK_BASE - 3;
     cpu->PS.I = 1; // Set Interrupt Disable Flag
     cpu->PS.D = 0; // Clear Decimal Mode Flag
     *cycles -= 7;
