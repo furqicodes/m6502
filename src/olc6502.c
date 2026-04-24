@@ -14,11 +14,16 @@ int olc6502_init(olc6502_t* cpu, m74ls138_t* ce) {
     return 0;
 }
 
-void olc6502_reset(olc6502_t* cpu) {
+void olc6502_reset(olc6502_t* cpu, int32_t* cycles) {
     cpu->PC = RESET_VECTOR;
     cpu->SP = DEFAULT_STACK_POINTER;
     cpu->PS.I = 1; // Set Interrupt Disable Flag
     cpu->PS.D = 0; // Clear Decimal Mode Flag
+    *cycles -= 7;
+    // When the 6502 is reset, the PC is set to the RESET_VECTOR address, next 2 bytes are read from
+    // that address to set the program start point
+    uint16_t prg_start = bus_read_word(cpu->CE, RESET_VECTOR);
+    cpu->PC = prg_start;
 }
 
 inline void update_flags_Areg(olc6502_t* cpu) {

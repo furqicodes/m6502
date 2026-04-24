@@ -36,8 +36,8 @@ int main(void)
         printf("CPU initialized to power-up state\n");
     }
 
-    bus_write_byte(&ce, 0xFFFC, INS_JMP_ABS); // Place a JMP instruction at the reset vector
-    bus_write_word(&ce, 0xFFFD, 0x8000);
+    bus_write_byte(&ce, 0xFFFC, 0x00);
+    bus_write_byte(&ce, 0xFFFD, 0x80);
     bus_write_byte(&ce, 0x8000, INS_JSR); 
     bus_write_word(&ce, 0x8001, 0x4000); // Set address of JSR target
     bus_write_byte(&ce, 0x8003, INS_CLI);
@@ -63,6 +63,7 @@ int main(void)
     bus_write_byte(&ce, 0x4010, 0x23);
     bus_write_byte(&ce, 0x401F, 0x46);
 
+    olc6502_reset(&cpu, &(int32_t){9}); // Reset the CPU to set the PC to the reset vector
     char buffer[SHELL_DEFAULT_BUFSIZE];
     shell_run(NULL, buffer, SHELL_DEFAULT_BUFSIZE);
 
@@ -106,7 +107,8 @@ int reset_command(int argc, char **argv) {
         return -1;
     }
     (void)argv; // Unused parameter
-    olc6502_reset(&cpu);
+    int32_t cycles = 9; // Reset takes 7 cycles, plus 2 cycles for the initial fetch of the reset vector
+    olc6502_reset(&cpu, &cycles);
     print_cpu_status(&cpu);
     return 0;
 }

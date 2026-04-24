@@ -145,7 +145,7 @@ uint16_t pull_word_from_stack(olc6502_t* cpu, int32_t* cycles);
 
 // External event functions. In hardware these represent pins that are asserted
 // to produce a change in state.
-void olc6502_reset(olc6502_t* cpu);	                    // Reset Interrupt - Forces CPU into known state
+void olc6502_reset(olc6502_t* cpu, int32_t* cycles);	                    // Reset Interrupt - Forces CPU into known state
 // void irq(olc6502_t* cpu, memory_t* mem);		// Interrupt Request - Executes an instruction at a specific location
 // void nmi(olc6502_t* cpu, memory_t* mem);		// Non-Maskable Interrupt Request - As above, but cannot be disabled
 // void clock(olc6502_t* cpu, memory_t* mem);	    // Perform one clock cycle's worth of update
