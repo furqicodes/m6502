@@ -105,6 +105,43 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             oops_cycle = false;
             update_flags_Areg(cpu);
             break;
+        case INS_STA_ZP:
+            bus_write_byte(cpu->CE, get_zp_address(cpu, &cycles), cpu->A);
+            cycles -= 1;
+            break;
+        case INS_STA_ZPX:
+            uint8_t zpx_address = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            bus_write_byte(cpu->CE, zpx_address, cpu->A);
+            cycles -= 2;
+            break;
+        case INS_STA_ABS:
+            uint16_t abs_address = get_absolute_address(cpu, &cycles);
+            bus_write_byte(cpu->CE, abs_address, cpu->A);
+            cycles -= 1;
+            break;
+        case INS_STA_ABSX:
+            uint16_t sta_absx_address = get_absolute_addressX(cpu, &cycles);
+            bus_write_byte(cpu->CE, sta_absx_address, cpu->A);
+            cycles -= 2;
+            oops_cycle = false;
+            break;
+        case INS_STA_ABSY:
+            uint16_t sta_absy_address = get_absolute_addressY(cpu, &cycles);
+            bus_write_byte(cpu->CE, sta_absy_address, cpu->A);
+            cycles -= 2;
+            oops_cycle = false;
+            break;
+        case INS_STA_INDX:
+            uint16_t indexed_indirectX_address = get_indexed_indirectX(cpu, &cycles);
+            bus_write_byte(cpu->CE, indexed_indirectX_address, cpu->A);
+            cycles -= 2;
+            break;
+        case INS_STA_INDY:
+            uint16_t indexed_indirectY_address = get_indexed_indirectY(cpu, &cycles);
+            bus_write_byte(cpu->CE, indexed_indirectY_address, cpu->A);
+            cycles -= 2;
+            oops_cycle = false;
+            break;
         case INS_LDX_IM:
             cpu->X = fetch_operand(cpu, &cycles);
             cpu->PS.Z = (cpu->X == 0);
