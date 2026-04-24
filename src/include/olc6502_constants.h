@@ -2,7 +2,6 @@
 
 // 6502 CPU Constants and Types
 #define RESET_VECTOR 0xFFFC
-#define DEFAULT_STACK_POINTER 0xFD
 #define STACK_BASE 0x0100
 
 // Legal opcodes for the 6502
