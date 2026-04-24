@@ -187,6 +187,29 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->Y = fetch_operand(cpu, &cycles);
             update_flags_from_register(cpu, cpu->Y);
             break;
+        case INS_LDY_ZP:
+            cpu->Y = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cycles -= 1;
+            update_flags_from_register(cpu, cpu->Y);
+            break;
+        case INS_LDY_ZPX:
+            uint8_t ldy_zpx_address = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            cpu->Y = bus_read_byte(cpu->CE, ldy_zpx_address);
+            cycles -= 2;
+            update_flags_from_register(cpu, cpu->Y);
+            break;
+        case INS_LDY_ABS:
+            cpu->Y = bus_read_byte(cpu->CE, get_absolute_address(cpu, &cycles));
+            cycles -= 1;
+            update_flags_from_register(cpu, cpu->Y);
+            break;
+        case INS_LDY_ABSX:
+            uint16_t ldy_absx_address = get_absolute_addressX(cpu, &cycles);
+            cpu->Y = bus_read_byte(cpu->CE, ldy_absx_address);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->Y);
+            break;
         // Flags type instructions
         case INS_CLC:
             cpu->PS.C = 0;
