@@ -169,6 +169,20 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             oops_cycle = false;
             update_flags_from_register(cpu, cpu->X);
             break;
+        case INS_STX_ZP:
+            bus_write_byte(cpu->CE, get_zp_address(cpu, &cycles), cpu->X);
+            cycles -= 1;
+            break;
+        case INS_STX_ZPY:
+            uint8_t stx_zpy_address = (get_zp_address(cpu, &cycles) + cpu->Y) & 0xFF;
+            bus_write_byte(cpu->CE, stx_zpy_address, cpu->X);
+            cycles -= 2;
+            break;
+        case INS_STX_ABS:
+            uint16_t stx_abs_address = get_absolute_address(cpu, &cycles);
+            bus_write_byte(cpu->CE, stx_abs_address, cpu->X);
+            cycles -= 1;
+            break;
         case INS_LDY_IM:
             cpu->Y = fetch_operand(cpu, &cycles);
             update_flags_from_register(cpu, cpu->Y);
