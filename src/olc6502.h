@@ -71,22 +71,22 @@ uint8_t fetch_operand(olc6502_t* cpu, int32_t* cycles);
 uint16_t get_absolute_address(olc6502_t* cpu, int32_t* cycles);
 
 /**
- * @brief Get the absolute address for an instruction with X index and consume 2 cycles (plus 1 additional cycle if page boundary is crossed)
+ * @brief Get the absolute address for an instruction with X index and consume 2 cycles
  * 
  * @param cpu Pointer to the CPU state
- * @param cycles Pointer to the remaining cycles, which will be decremented by 2 (plus 1 additional cycle if page boundary is crossed)
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 2
  * 
- * @return The absolute address calculated from the next two bytes in memory, with the offset of X register
+ * @return The absolute address calculated from the next two bytes in memory, with the offset of X register, sets the oops_cycle flag if page boundary is crossed
  */
 uint16_t get_absolute_addressX(olc6502_t* cpu, int32_t* cycles);
 
 /**
- * @brief Get the absolute address for an instruction with Y index and consume 2 cycles (plus 1 additional cycle if page boundary is crossed)
+ * @brief Get the absolute address for an instruction with Y index and consume 2 cycles
  * 
  * @param cpu Pointer to the CPU state
- * @param cycles Pointer to the remaining cycles, which will be decremented by 2 (plus 1 additional cycle if page boundary is crossed)
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 2
  * 
- * @return The absolute address calculated from the next two bytes in memory, with the offset of Y register
+ * @return The absolute address calculated from the next two bytes in memory, with the offset of Y register, sets the oops_cycle flag if page boundary is crossed
  */
 uint16_t get_absolute_addressY(olc6502_t* cpu, int32_t* cycles);
 
@@ -101,12 +101,12 @@ uint16_t get_absolute_addressY(olc6502_t* cpu, int32_t* cycles);
 uint16_t get_indexed_indirectX(olc6502_t* cpu, int32_t* cycles);
 
 /**
- * @brief Get the indirect address for an instruction with Y offset and consume 3 cycles (plus 1 additional cycle if page boundary is crossed)
+ * @brief Get the indirect address for an instruction with Y offset and consume 3 cycles
  * 
  * @param cpu Pointer to the CPU state
- * @param cycles Pointer to the remaining cycles, which will be decremented by 3 (plus 1 additional cycle if page boundary is crossed)
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 3
  * 
- * @return The indirect address calculated by first adding the Y register to the next byte in memory to get an absolute address, then reading the 16-bit address from that absolute address location
+ * @return The indirect address calculated by first adding the Y register to the next byte in memory to get an absolute address, then reading the 16-bit address from that absolute address location, sets the oops_cycle flag if page boundary is crossed
  */
 uint16_t get_indexed_indirectY(olc6502_t* cpu, int32_t* cycles);
 

@@ -32,6 +32,19 @@ inline void update_flags_Areg(olc6502_t* cpu) {
     cpu->PS.N = (cpu->A & 0x80) != 0;
 }
 
+/* The 6502 has one 8-bit ALU and one 16-bit upcounter (for PC). To calculate a,x or a,y addressing in 
+ * an instruction other than sta, stx, or sty, it uses the 8-bit ALU to first calculate the low byte while 
+ * it fetches the high byte. If there's a carry out, it goes "oops", applies the carry using the ALU, and 
+ * repeats the read at the correct address. Store instructions always have this "oops" cycle: the CPU first 
+ * reads from the partially added address and then writes to the correct address. The same thing happens 
+ * on (d),y indirect addressing.
+ */
+bool oops_cycle = false;
+inline bool page_boundary_crossed(uint16_t addr1, uint16_t addr2) {
+    oops_cycle = true;
+    return (addr1 & 0xFF00) != (addr2 & 0xFF00);
+}
+
 bool interrupt_flag_should_be_set = false;
 uint8_t interrupt_disable_flag_next;
 int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
@@ -70,13 +83,15 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
         case INS_LDA_ABSX:
             uint16_t abs_addressX = get_absolute_addressX(cpu, &cycles);
             cpu->A = bus_read_byte(cpu->CE, abs_addressX);
-            cycles -= 1;
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
             update_flags_Areg(cpu);
             break;
         case INS_LDA_ABSY:
             uint16_t abs_addressY = get_absolute_addressY(cpu, &cycles);
             cpu->A = bus_read_byte(cpu->CE, abs_addressY);
-            cycles -= 1;
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
             update_flags_Areg(cpu);
             break;
         case INS_LDA_INDX:
@@ -86,7 +101,8 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             break;
         case INS_LDA_INDY:
             cpu->A = bus_read_byte(cpu->CE, get_indexed_indirectY(cpu, &cycles));
-            cycles -= 1;
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
             update_flags_Areg(cpu);
             break;
         case INS_LDX_IM:
@@ -177,10 +193,7 @@ uint16_t get_absolute_addressX(olc6502_t* cpu, int32_t* cycles) {
     uint16_t final_address = abs_address + cpu->X;
     cpu->PC += 2;
     *cycles -= 2;
-    // Add another cycle if page boundary is crossed
-    if ((abs_address & 0xFF00) != (final_address & 0xFF00)) {
-        *cycles -= 1;
-    }
+    oops_cycle = page_boundary_crossed(abs_address, final_address);
     return final_address;
 }
 
@@ -197,10 +210,7 @@ uint16_t get_indexed_indirectY(olc6502_t* cpu, int32_t* cycles) {
     uint16_t base_address = bus_read_word(cpu->CE, arg);
     uint16_t final_address = base_address + cpu->Y;
     *cycles -= 2;
-    // Add another cycle if page boundary is crossed
-    if ((base_address & 0xFF00) != (final_address & 0xFF00)) {
-        *cycles -= 1;
-    }
+    oops_cycle = page_boundary_crossed(base_address, final_address);
     return final_address;
 }
 
@@ -209,10 +219,7 @@ uint16_t get_absolute_addressY(olc6502_t* cpu, int32_t* cycles) {
     uint16_t final_address = abs_address + cpu->Y;
     cpu->PC += 2;
     *cycles -= 2;
-    // Add another cycle if page boundary is crossed
-    if ((abs_address & 0xFF00) != (final_address & 0xFF00)) {
-        *cycles -= 1;
-    }
+    oops_cycle = page_boundary_crossed(abs_address, final_address);
     return final_address;
 }
 
