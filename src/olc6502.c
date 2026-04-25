@@ -11,6 +11,7 @@ int olc6502_init(olc6502_t* cpu, m74ls138_t* ce) {
     cpu->SP = STACK_BASE - 3;
     cpu->PS.value = 0x04; // Clear all flags except the Interrupt Disable Flag
     cpu->CE = ce;
+    cpu->I_nxt = 1;
     return 0;
 }
 
@@ -24,6 +25,7 @@ void olc6502_reset(olc6502_t* cpu, int32_t* cycles) {
     // that address to set the program start point
     uint16_t prg_start = bus_read_word(cpu->CE, RESET_VECTOR);
     cpu->PC = prg_start;
+    cpu->I_nxt = 1;
 }
 
 inline void update_flags_from_register(olc6502_t* cpu, uint8_t reg) {
@@ -45,18 +47,12 @@ inline bool page_boundary_crossed(uint16_t addr1, uint16_t addr2) {
     return (addr1 & 0xFF00) != (addr2 & 0xFF00);
 }
 
-bool interrupt_flag_should_be_set = false;
-uint8_t interrupt_disable_flag_next;
 int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
     uint32_t requested_cycles = cycles;
     while (cycles > 0) {
         uint8_t opcode = fetch_operand(cpu, &cycles);
 
-        // Delayed flag setting logic for SEI/CLI: the effect of changing the Interrupt Disable Flag is delayed one instruction because the flag is changed after IRQ is polled, allowing an IRQ to be serviced between this and the next instruction if the flag was previously 0. This means that if SEI is executed, interrupts will still be serviced until the next instruction is executed, and if CLI is executed, interrupts will not be serviced until the next instruction is executed.
-        if (interrupt_flag_should_be_set) {
-            cpu->PS.I = interrupt_disable_flag_next;
-            interrupt_disable_flag_next = false;
-        }
+        cpu->PS.I = cpu->I_nxt;
         
         switch (opcode)
         {
@@ -263,13 +259,11 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cycles--;
             break;
         case INS_CLI:
-            interrupt_disable_flag_next = 0;
-            interrupt_flag_should_be_set = true;
+            cpu->I_nxt = 0;
             cycles--;
             break;
         case INS_SEI:
-            interrupt_disable_flag_next = 1;
-            interrupt_flag_should_be_set = true;
+            cpu->I_nxt = 1;
             cycles--;
             break;
         case INS_CLV:

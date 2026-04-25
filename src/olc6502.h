@@ -25,6 +25,7 @@ typedef struct {
     union Flags PS;     // Processor Status Flags
     uint16_t PC;    // Program Counter
     m74ls138_t* CE; // Address decoder
+    uint8_t I_nxt : 1; // (Internal) Delayed Interrupt Disable Flag for SEI/CLI instructions
 } olc6502_t;
 
 /*
