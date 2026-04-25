@@ -1,7 +1,21 @@
 #pragma once
 
 // 6502 CPU Constants and Types
+/**
+ * @brief NMI vector, which point at an NMI handler
+ * 0xFFFA-0xFFFB
+ */
+#define NMI_VECTOR 0xFFFA
+/**
+ * @brief Reset vector, which points at the start of the program
+ * 0xFFFC-0xFFFD
+ */
 #define RESET_VECTOR 0xFFFC
+/**
+ * @brief IRQ/BRK vector, which points at an IRQ/BRK handler
+ * 0xFFFE-0xFFFF
+ */
+#define IRQ_VECTOR 0xFFFE
 #define STACK_BASE 0x0100
 
 // Legal opcodes for the 6502
