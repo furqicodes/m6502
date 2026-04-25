@@ -293,6 +293,43 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
         case INS_RTI:
             printf("NOT IMPLEMENTED: RTI\n");
             break;
+        // Stack type instructions
+        case INS_PHA:
+            bus_write_byte(cpu->CE, STACK_BASE + cpu->SP, cpu->A);
+            cpu->SP--;
+            cycles -= 2;
+            break;
+        case INS_PLA:
+            cpu->SP++;
+            cpu->A = bus_read_byte(cpu->CE, STACK_BASE + cpu->SP);
+            update_flags_from_register(cpu, cpu->A);
+            cycles -= 3;
+            break;
+        case INS_PHP:
+            bus_write_byte(cpu->CE, STACK_BASE + cpu->SP, cpu->PS.value | 0x30);
+            cpu->SP--;
+            cycles -= 2;
+            break;
+        case INS_PLP:
+            cpu->SP++;
+            uint8_t prev_state = cpu->PS.value;
+            uint8_t new_state = bus_read_byte(cpu->CE, STACK_BASE + cpu->SP) & 0xCF; // Ignoring bits 4 and 5
+            if ((new_state & 0x04) ^ (prev_state & 0x04)) {
+                // Interrupt Disable from 0->1 or 1->0, set the delayed flag update
+                cpu->I_nxt = (new_state & 0x04);
+            }
+            cpu->PS.value |= new_state & 0xFB;  // Ignore Interrupt disable flag for this cycle, it will be updated at the start of the next instruction
+            cycles -= 3;
+            break;
+        case INS_TXS:
+            bus_write_byte(cpu->CE, STACK_BASE + cpu->SP, cpu->X);
+            cycles -= 1;
+            break;
+        case INS_TSX:
+            cpu->X = bus_read_byte(cpu->CE, STACK_BASE + cpu->SP);
+            update_flags_from_register(cpu, cpu->X);
+            cycles -= 1;
+            break;
         // ...
         case INS_NOP:
             printf("NOP executed at PC: 0x%04X\n", cpu->PC - 1);
