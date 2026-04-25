@@ -284,6 +284,157 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->PS.V = 0;
             cycles--;
             break;
+        // Bitwise type instructions
+        case INS_AND_IM:
+            cpu->A &= fetch_operand(cpu, &cycles);
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_AND_ZP:
+            cpu->A &= bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cycles -= 1;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_AND_ZPX:
+            addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            cpu->A &= bus_read_byte(cpu->CE, addr);
+            cycles -= 2;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_AND_ABS:
+            cpu->A &= bus_read_byte(cpu->CE, get_absolute_address(cpu, &cycles));
+            cycles -= 1;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_AND_ABSX:
+            addr = get_absolute_addressX(cpu, &cycles);
+            cpu->A &= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_AND_ABSY:
+            addr = get_absolute_addressY(cpu, &cycles);
+            cpu->A &= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_AND_INDX:
+            cpu->A &= bus_read_byte(cpu->CE, get_indexed_indirectX(cpu, &cycles));
+            cycles -= 2;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_AND_INDY:
+            addr = get_indexed_indirectY(cpu, &cycles);
+            cpu->A &= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_ORA_IM:
+            cpu->A |= fetch_operand(cpu, &cycles);
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_ORA_ZP:
+            cpu->A |= bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cycles -= 1;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_ORA_ZPX:
+            addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            cpu->A |= bus_read_byte(cpu->CE, addr);
+            cycles -= 2;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_ORA_ABS:
+            cpu->A |= bus_read_byte(cpu->CE, get_absolute_address(cpu, &cycles));
+            cycles -= 1;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_ORA_ABSX:
+            addr = get_absolute_addressX(cpu, &cycles);
+            cpu->A |= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_ORA_ABSY:
+            addr = get_absolute_addressY(cpu, &cycles);
+            cpu->A |= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_ORA_INDX:
+            cpu->A |= bus_read_byte(cpu->CE, get_indexed_indirectX(cpu, &cycles));
+            cycles -= 2;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_ORA_INDY:
+            addr = get_indexed_indirectY(cpu, &cycles);
+            cpu->A |= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_EOR_IM:
+            cpu->A ^= fetch_operand(cpu, &cycles);
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_EOR_ZP:
+            cpu->A ^= bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cycles -= 1;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_EOR_ZPX:
+            addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            cpu->A ^= bus_read_byte(cpu->CE, addr);
+            cycles -= 2;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_EOR_ABS:
+            cpu->A ^= bus_read_byte(cpu->CE, get_absolute_address(cpu, &cycles));
+            cycles -= 1;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_EOR_ABSX:
+            addr = get_absolute_addressX(cpu, &cycles);
+            cpu->A ^= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_EOR_ABSY:
+            addr = get_absolute_addressY(cpu, &cycles);
+            cpu->A ^= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_EOR_INDX:
+            cpu->A ^= bus_read_byte(cpu->CE, get_indexed_indirectX(cpu, &cycles));
+            cycles -= 2;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_EOR_INDY:
+            addr = get_indexed_indirectY(cpu, &cycles);
+            cpu->A ^= bus_read_byte(cpu->CE, addr);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            update_flags_from_register(cpu, cpu->A);
+            break;
+        case INS_BIT_ZP:
+            fetched = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cycles -= 1;
+            cpu->PS.Z = (fetched & cpu->A) == 0;
+            cpu->PS.value |= (fetched & 0xC0);
+            break;
+        case INS_BIT_ABS:
+            fetched = bus_read_byte(cpu->CE, get_absolute_address(cpu, &cycles));
+            cycles -= 1;
+            cpu->PS.Z = (fetched & cpu->A) == 0;
+            cpu->PS.value |= (fetched & 0xC0);
+            break;
         // Compare type instructions
         case INS_CMP_IM:
             fetched = fetch_operand(cpu, &cycles);
