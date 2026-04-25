@@ -165,7 +165,7 @@
 #define INS_SBC_INDY 0xF1
 
 // Register Comparison
-#define INS_CMP 0xC9
+#define INS_CMP_IM 0xC9
 #define INS_CMP_ZP 0xC5
 #define INS_CMP_ZPX 0xD5
 #define INS_CMP_ABS 0xCD
@@ -174,8 +174,8 @@
 #define INS_CMP_INDX 0xC1
 #define INS_CMP_INDY 0xD1
 
-#define INS_CPX 0xE0
-#define INS_CPY 0xC0
+#define INS_CPX_IM 0xE0
+#define INS_CPY_IM 0xC0
 #define INS_CPX_ZP 0xE4
 #define INS_CPY_ZP 0xC4
 #define INS_CPX_ABS 0xEC

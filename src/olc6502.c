@@ -281,6 +281,99 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->PS.V = 0;
             cycles--;
             break;
+        // Compare type instructions
+        case INS_CMP_IM:
+            uint8_t cmp_value = fetch_operand(cpu, &cycles);
+            cpu->PS.C = (cpu->A >= cmp_value);
+            update_flags_from_register(cpu, cpu->A - cmp_value);
+            break;
+        case INS_CMP_ZP:
+            uint8_t cmp_zp_value = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cycles -= 1;
+            cpu->PS.C = (cpu->A >= cmp_zp_value);
+            update_flags_from_register(cpu, cpu->A - cmp_zp_value);
+            break;
+        case INS_CMP_ZPX:
+            uint8_t cmp_zpx_address = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            uint8_t cmp_zpx_value = bus_read_byte(cpu->CE, cmp_zpx_address);
+            cycles -= 2;
+            cpu->PS.C = (cpu->A >= cmp_zpx_value);
+            update_flags_from_register(cpu, cpu->A - cmp_zpx_value);
+            break;
+        case INS_CMP_ABS:
+            uint16_t cmp_abs_address = get_absolute_address(cpu, &cycles);
+            uint8_t cmp_abs_value = bus_read_byte(cpu->CE, cmp_abs_address);
+            cycles -= 1;
+            cpu->PS.C = (cpu->A >= cmp_abs_value);
+            update_flags_from_register(cpu, cpu->A - cmp_abs_value);
+            break;
+        case INS_CMP_ABSX:
+            uint16_t cmp_absx_address = get_absolute_addressX(cpu, &cycles);
+            uint8_t cmp_absx_value = bus_read_byte(cpu->CE, cmp_absx_address);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            cpu->PS.C = (cpu->A >= cmp_absx_value);
+            update_flags_from_register(cpu, cpu->A - cmp_absx_value);
+            break;
+        case INS_CMP_ABSY:
+            uint16_t cmp_abyx_address = get_absolute_addressY(cpu, &cycles);
+            uint8_t cmp_abyx_value = bus_read_byte(cpu->CE, cmp_abyx_address);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            cpu->PS.C = (cpu->A >= cmp_abyx_value);
+            update_flags_from_register(cpu, cpu->A - cmp_abyx_value);
+            break;
+        case INS_CMP_INDX:
+            uint16_t cmp_indexed_indirectX_address = get_indexed_indirectX(cpu, &cycles);
+            uint8_t cmp_indexed_indirectX_value = bus_read_byte(cpu->CE, cmp_indexed_indirectX_address);
+            cycles -= 2;
+            cpu->PS.C = (cpu->A >= cmp_indexed_indirectX_value);
+            update_flags_from_register(cpu, cpu->A - cmp_indexed_indirectX_value);
+            break;
+        case INS_CMP_INDY:
+            uint16_t cmp_indexed_indirectY_address = get_indexed_indirectY(cpu, &cycles);
+            uint8_t cmp_indexed_indirectY_value = bus_read_byte(cpu->CE, cmp_indexed_indirectY_address);
+            cycles -= oops_cycle ? 2 : 1;
+            oops_cycle = false;
+            cpu->PS.C = (cpu->A >= cmp_indexed_indirectY_value);
+            update_flags_from_register(cpu, cpu->A - cmp_indexed_indirectY_value);
+            break;
+        case INS_CPX_IM:
+            uint8_t cpx_im_value = fetch_operand(cpu, &cycles);
+            cpu->PS.C = (cpu->X >= cpx_im_value);
+            update_flags_from_register(cpu, cpu->X - cpx_im_value);
+            break;
+        case INS_CPX_ZP:
+            uint8_t cpx_zp_value = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cycles -= 1;
+            cpu->PS.C = (cpu->X >= cpx_zp_value);
+            update_flags_from_register(cpu, cpu->X - cpx_zp_value);
+            break;
+        case INS_CPX_ABS:
+            uint16_t cpx_abs_address = get_absolute_address(cpu, &cycles);
+            uint8_t cpx_abs_value = bus_read_byte(cpu->CE, cpx_abs_address);
+            cycles -= 1;
+            cpu->PS.C = (cpu->X >= cpx_abs_value);
+            update_flags_from_register(cpu, cpu->X - cpx_abs_value);
+            break;
+        case INS_CPY_IM:
+            uint8_t cpy_im_value = fetch_operand(cpu, &cycles);
+            cpu->PS.C = (cpu->Y >= cpy_im_value);
+            update_flags_from_register(cpu, cpu->Y - cpy_im_value);
+            break;
+        case INS_CPY_ZP:
+            uint8_t cpy_zp_value = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
+            cycles -= 1;
+            cpu->PS.C = (cpu->Y >= cpy_zp_value);
+            update_flags_from_register(cpu, cpu->Y - cpy_zp_value);
+            break;
+        case INS_CPY_ABS:
+            uint16_t cpy_abs_address = get_absolute_address(cpu, &cycles);
+            uint8_t cpy_abs_value = bus_read_byte(cpu->CE, cpy_abs_address);
+            cycles -= 1;
+            cpu->PS.C = (cpu->Y >= cpy_abs_value);
+            update_flags_from_register(cpu, cpu->Y - cpy_abs_value);
+            break;
         // Branch type instructions
         case INS_BCC:
             branch_if(cpu, &cycles, !cpu->PS.C);
