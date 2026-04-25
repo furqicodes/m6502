@@ -281,6 +281,31 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->PS.V = 0;
             cycles--;
             break;
+        // Branch type instructions
+        case INS_BCC:
+            branch_if(cpu, &cycles, !cpu->PS.C);
+            break;
+        case INS_BCS:
+            branch_if(cpu, &cycles, cpu->PS.C);
+            break;
+        case INS_BEQ:
+            branch_if(cpu, &cycles, cpu->PS.Z);
+            break;
+        case INS_BNE:
+            branch_if(cpu, &cycles, !cpu->PS.Z);
+            break;
+        case INS_BPL:
+            branch_if(cpu, &cycles, !cpu->PS.N);
+            break;
+        case INS_BMI:
+            branch_if(cpu, &cycles, cpu->PS.N);
+            break;
+        case INS_BVC:
+            branch_if(cpu, &cycles, !cpu->PS.V);
+            break;
+        case INS_BVS:
+            branch_if(cpu, &cycles, cpu->PS.V);
+            break;
         // Jump type instructions
         case INS_JMP_ABS:
             cpu->PC = get_absolute_address(cpu, &cycles);
