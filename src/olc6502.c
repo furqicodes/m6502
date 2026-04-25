@@ -47,6 +47,17 @@ inline bool page_boundary_crossed(uint16_t addr1, uint16_t addr2) {
     return (addr1 & 0xFF00) != (addr2 & 0xFF00);
 }
 
+static inline void branch_if(olc6502_t* cpu, int32_t* cycles, bool condition) {
+    if (!condition) {
+        fetch_operand(cpu, cycles);
+        return;
+    }
+    uint16_t old_PC = cpu->PC;
+    int8_t offset = (int8_t)fetch_operand(cpu, cycles);
+    cpu->PC += offset;
+    *cycles -= page_boundary_crossed(old_PC - 1, cpu->PC) ? 2 : 1;
+}
+
 int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
     uint32_t requested_cycles = cycles;
     while (cycles > 0) {
