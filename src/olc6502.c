@@ -59,12 +59,19 @@ static inline void branch_if(olc6502_t* cpu, int32_t* cycles, bool condition) {
 }
 
 int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
+    // Opcode section fields
+    uint8_t aaa, bbb, cc;
     uint32_t requested_cycles = cycles;
     uint16_t addr = 0x0000;
     uint8_t fetched = 0x00;
     uint8_t temp = 0x00;
     while (cycles > 0) {
         uint8_t opcode = fetch_operand(cpu, &cycles);
+        aaa = (opcode >> 5) & 0x07;
+        bbb = (opcode >> 2) & 0x07;
+        cc = opcode & 0x03;
+        printf("0x%02X: Opcode 0x%02X (a=%03X, b=%u, c=%u), Cycles left: %d\n",
+            cpu->PC - 1, opcode, aaa, bbb, cc, cycles);     // REMOVEME
 
         cpu->PS.I = cpu->I_nxt;
         
