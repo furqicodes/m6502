@@ -262,35 +262,6 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             update_flags_from_register(cpu, cpu->A);
             cycles -= 1;
             break;
-        // Flags type instructions
-        case INS_CLC:
-            cpu->PS.C = 0;
-            cycles--;
-            break;
-        case INS_SEC:
-            cpu->PS.C = 1;
-            cycles--;
-            break;
-        case INS_CLD:
-            cpu->PS.D = 0;
-            cycles--;
-            break;
-        case INS_SED:
-            cpu->PS.D = 1;
-            cycles--;
-            break;
-        case INS_CLI:
-            cpu->I_nxt = 0;
-            cycles--;
-            break;
-        case INS_SEI:
-            cpu->I_nxt = 1;
-            cycles--;
-            break;
-        case INS_CLV:
-            cpu->PS.V = 0;
-            cycles--;
-            break;
         // Bitwise type instructions
         case INS_AND_IM:
             cpu->A &= fetch_operand(cpu, &cycles);
@@ -627,6 +598,24 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             break;
         default:
             break;
+        }
+
+        if (aaa != 4 && bbb == 6 && cc == 0 ) {
+            // This is Set/Clear flag instruction
+            // CLC : 0b000 SEC : 0b001 CLI : 0b010 SEI : 0b011 CLV : 0b100 CLD : 0b110 SED : 0b111
+            // For carry bit: 0b00X, 00 is selector and X is the value
+            // For interrupt disable bit: 0b01X, 01 is selector and X is the value
+            // For overflow bit: 0b10X, 10 is selector and X is the value
+            // For decimal bit: 0b11X, 11 is selector and X is the value
+            uint8_t flag_value = aaa & 0x01;
+            uint8_t flag_selector = aaa >> 1;
+            switch (flag_selector) {
+            case 0b00: cpu->PS.C = flag_value; break;
+            case 0b01: cpu->I_nxt = flag_value; break;
+            case 0b10: cpu->PS.V = flag_value; break;
+            case 0b11: cpu->PS.D = flag_value; break;
+            }
+            cycles--;
         }
     }
     return requested_cycles - cycles;
