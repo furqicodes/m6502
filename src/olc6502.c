@@ -731,6 +731,68 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
                 cycles -= (bbb < 4) ? 3 : 4;
             }
         }
+    
+        // ADC instructions
+        if (((aaa == 3) | (aaa == 7)) && cc == 1) {
+            // bbb=0b000 : ADC indirect X
+            // bbb=0b001 : ADC zero page
+            // bbb=0b010 : ADC immediate
+            // bbb=0b011 : ADC absolute
+            // bbb=0b100 : ADC indirect Y
+            // bbb=0b101 : ADC zero page X
+            // bbb=0b110 : ADC absolute Y
+            // bbb=0b111 : ADC absolute X
+            switch (bbb) {
+            case 0b000: 
+                addr = get_indexed_indirectX(cpu, &cycles); 
+                cycles -= 2; 
+                break;
+            case 0b001: 
+                addr = get_zp_address(cpu, &cycles);
+                cycles--;
+                break;
+            case 0b010: 
+                fetched = fetch_operand(cpu, &cycles); // Immediate value is the operand
+                break;
+            case 0b011: 
+                addr = get_absolute_address(cpu, &cycles);
+                cycles -= 1;
+                break;
+            case 0b100:
+                addr = get_indexed_indirectY(cpu, &cycles);
+                cycles -= oops_cycle ? 2 : 1;
+                oops_cycle = false;
+                break;
+            case 0b101: 
+                addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+                cycles--;
+                break;
+            case 0b110: 
+                addr = get_absolute_addressY(cpu, &cycles);
+                cycles -= oops_cycle ? 2 : 1;
+                oops_cycle = false;
+                break;
+            case 0b111: 
+                addr = get_absolute_addressX(cpu, &cycles);
+                cycles -= oops_cycle ? 2 : 1;
+                oops_cycle = false;
+                break;
+            }
+
+            if (bbb != 0b010) {
+                fetched = bus_read_byte(cpu->CE, addr);
+            }
+
+            if (aaa == 7) {
+                fetched = ~fetched;
+            }
+
+            uint16_t sum = (uint16_t)cpu->A + (uint16_t)fetched + (cpu->PS.C ? 1 : 0);
+            cpu->PS.V = ((sum ^ cpu->A) & (sum ^ fetched) & 0x80) != 0;
+            cpu->PS.C = sum > 0xFF;
+            cpu->A = (uint8_t)sum;
+            update_flags_from_register(cpu, cpu->A);
+        }
     }
     return requested_cycles - cycles;
 }
