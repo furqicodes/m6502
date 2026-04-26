@@ -182,25 +182,25 @@
 #define INS_CPY_ABS 0xCC
 
 // shifts
-#define INS_ASL 0x0A
+#define INS_ASL_A 0x0A
 #define INS_ASL_ZP 0x06
 #define INS_ASL_ZPX 0x16
 #define INS_ASL_ABS 0x0E
 #define INS_ASL_ABSX 0x1E
 
-#define INS_LSR 0x4A
+#define INS_LSR_A 0x4A
 #define INS_LSR_ZP 0x46
 #define INS_LSR_ZPX 0x56
 #define INS_LSR_ABS 0x4E
 #define INS_LSR_ABSX 0x5E
 
-#define INS_ROL 0x2A
+#define INS_ROL_A 0x2A
 #define INS_ROL_ZP 0x26
 #define INS_ROL_ZPX 0x36
 #define INS_ROL_ABS 0x2E
 #define INS_ROL_ABSX 0x3E
 
-#define INS_ROR 0x6A
+#define INS_ROR_A 0x6A
 #define INS_ROR_ZP 0x66
 #define INS_ROR_ZPX 0x76
 #define INS_ROR_ABS 0x6E

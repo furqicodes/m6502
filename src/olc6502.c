@@ -262,6 +262,87 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             update_flags_from_register(cpu, cpu->A);
             cycles -= 1;
             break;
+        // Shift type instructions
+        case INS_ASL_A:
+            fetched = cpu->A;
+            break;
+        case INS_ASL_ZP:
+            addr = get_zp_address(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ASL_ZPX:
+            addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ASL_ABS:
+            addr = get_absolute_address(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ASL_ABSX:
+            addr = get_absolute_addressX(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            oops_cycle = false;
+            break;
+        case INS_LSR_A:
+            fetched = cpu->A;
+            break;
+        case INS_LSR_ZP:
+            addr = get_zp_address(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_LSR_ZPX:
+            addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_LSR_ABS:
+            addr = get_absolute_address(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_LSR_ABSX:
+            addr = get_absolute_addressX(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            oops_cycle = false;
+            break;
+        case INS_ROL_A:
+            fetched = cpu->A;
+            break;
+        case INS_ROL_ZP:
+            addr = get_zp_address(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ROL_ZPX:
+            addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ROL_ABS:
+            addr = get_absolute_address(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ROL_ABSX:
+            addr = get_absolute_addressX(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            oops_cycle = false;
+            break;
+        case INS_ROR_A:
+            fetched = cpu->A;
+            break;
+        case INS_ROR_ZP:
+            addr = get_zp_address(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ROR_ZPX:
+            addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ROR_ABS:
+            addr = get_absolute_address(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            break;
+        case INS_ROR_ABSX:
+            addr = get_absolute_addressX(cpu, &cycles);
+            fetched = bus_read_byte(cpu->CE, addr);
+            oops_cycle = false;
+            break;
         // Bitwise type instructions
         case INS_AND_IM:
             cpu->A &= fetch_operand(cpu, &cycles);
@@ -616,6 +697,39 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             case 0b11: cpu->PS.D = flag_value; break;
             }
             cycles--;
+        }
+
+        if (aaa < 4 && cc == 2) {
+            bool is_accumulator = (bbb == 2);
+            switch (aaa) {
+            case 0: // ASL
+                cpu->PS.C = (fetched & 0x80) != 0;
+                fetched <<= 1;
+                break;
+            case 1: // ROL
+                temp = cpu->PS.C ? 0x01 : 0x00;
+                cpu->PS.C = (fetched & 0x80) != 0;
+                fetched = (fetched << 1) | temp;
+                break;
+            case 2: // LSR
+                cpu->PS.C = (fetched & 0x01) != 0;
+                fetched >>= 1;
+                break;
+            case 3: // ROR
+                temp = cpu->PS.C ? 0x80 : 0x00;
+                cpu->PS.C = (fetched & 0x01) != 0;
+                fetched = (fetched >> 1) | temp;
+                break;
+            }
+
+            update_flags_from_register(cpu, fetched);
+            if (is_accumulator) {
+                cpu->A = fetched;
+                cycles--;
+            } else {
+                bus_write_byte(cpu->CE, addr, fetched);
+                cycles -= (bbb < 4) ? 3 : 4;
+            }
         }
     }
     return requested_cycles - cycles;
