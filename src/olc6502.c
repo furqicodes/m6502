@@ -1,8 +1,8 @@
 #include "olc6502.h"
 #include <stdbool.h>
-// REMOVEME
+#ifdef DEBUG
 #include <stdio.h>
-
+#endif
 int olc6502_init(olc6502_t* cpu, m74ls138_t* ce) {
     cpu->A = 0;
     cpu->X = 0;
@@ -59,8 +59,10 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
         aaa = (opcode >> 5) & 0x07;
         bbb = (opcode >> 2) & 0x07;
         cc = opcode & 0x03;
+#ifdef DEBUG
         printf("0x%02X: Opcode 0x%02X (a=%03X, b=%u, c=%u), Cycles left: %d\n",
             cpu->PC - 1, opcode, aaa, bbb, cc, cycles);     // REMOVEME
+#endif
 
         cpu->PS.I = cpu->I_nxt;
         
@@ -583,7 +585,6 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             break;
         // ...
         case INS_NOP:
-            printf("NOP executed at PC: 0x%04X\n", cpu->PC - 1);
             cycles--;
             break;
         default:
