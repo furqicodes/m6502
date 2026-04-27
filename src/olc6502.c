@@ -753,6 +753,40 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             update_flags_from_register(cpu, value & 0x00FF);
         }
 
+        // INC/DEC instructions
+        if ((cc == 2) && (aaa > 5) && (bbb != 2)) {
+            // Select correct register
+            temp = cpu->A;
+
+            // Select addressing mode
+            switch (bbb) {
+            case 0b001:
+                addr = get_zp_address(cpu, &cycles);
+                cycles -= 3;
+                break;
+            case 0b011:
+                addr = get_absolute_address(cpu, &cycles);
+                cycles -= 3;
+                break;
+            case 0b101:
+                addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+                cycles -= 4;
+                break;
+            case 0b111:
+                addr = get_absolute_addressX(cpu, &cycles);
+                cycles -= 4;
+                oops_cycle = false;
+                break;
+            }
+
+            // Perform the increment/decrement
+            temp = (aaa == 7) ? temp + 1 : temp - 1;
+            update_flags_from_register(cpu, temp);
+
+            // Write back the result
+            bus_write_byte(cpu->CE, addr, temp);
+        }
+
     }
     return requested_cycles - cycles;
 }
