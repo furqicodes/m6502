@@ -528,18 +528,21 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             break;
         case INS_BRK:
             fetch_operand(cpu, &cycles); // BRK has a padding byte that is ignored
-            // push PC high byte to stack
-            // push PC low byte to stack
             push_word_to_stack(cpu, cpu->PC, &cycles);
-            // push NV11DIZC flags to stack
-            push_byte_to_stack(cpu, cpu->PS.value | 0x10, &cycles); // Set the Break flag (bit 4) when pushing to stack
-            // cpu->PS.I = 1; // Set Interrupt Disable Flag
-            // cpu->I_nxt = 1; // Set delayed Interrupt Disable Flag
-            // PC = 0xFFFE (the IRQ vector)
-            cycles -= 3;
+            temp = cpu->PS.value | 0x30;
+            push_byte_to_stack(cpu, temp, &cycles); 
+            cpu->PS.I = 1;
+            cpu->I_nxt = 1;
+            cpu->PC = IRQ_VECTOR;
+            cycles -= 2;
             break;
         case INS_RTI:
-            printf("NOT IMPLEMENTED: RTI\n");
+            fetched = pull_byte_from_stack(cpu, &cycles);
+            cpu->PS.value |= (fetched & 0xCF);
+            cpu->I_nxt = (fetched & 0x04);
+            cycles -= 2;
+            addr = pull_word_from_stack(cpu, &cycles);
+            cpu->PC = addr;
             break;
         // Stack type instructions
         case INS_PHA:
