@@ -1,0 +1,26 @@
+// #ifdef SBC_TESTS
+    bus_write_byte(&ce, 0x8000, INS_CLC);
+    bus_write_byte(&ce, 0x8001, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8002, 0x42);
+    bus_write_byte(&ce, 0x8003, INS_SBC_IM);
+    bus_write_byte(&ce, 0x8004, 0x01);
+    bus_write_byte(&ce, 0x8005, INS_STA_ZP);
+    bus_write_byte(&ce, 0x8006, 0x10); // 0x42 - 0x01 = 0x41 should be stored at address 0x0010 after execution
+    bus_write_byte(&ce, 0x8007, INS_SEC);
+    bus_write_byte(&ce, 0x8008, INS_SBC_ZP);
+    bus_write_byte(&ce, 0x8009, 0x10); // 0x41 - 0x41 + 0x01 (carry) = 0x01 should be stored in the accumulator after execution
+    bus_write_byte(&ce, 0x800A, INS_TAX); // Accumulator value (0x01) should be transferred to X register
+// #endif
+// #ifdef ADC_TESTS
+    // bus_write_byte(&ce, 0x8000, INS_CLC);
+    // bus_write_byte(&ce, 0x8001, INS_LDA_IM);
+    // bus_write_byte(&ce, 0x8002, 0x42);
+    // bus_write_byte(&ce, 0x8003, INS_ADC_IM);
+    // bus_write_byte(&ce, 0x8004, 0x01);
+    // bus_write_byte(&ce, 0x8005, INS_STA_ZP);
+    // bus_write_byte(&ce, 0x8006, 0x10); // 0x42 + 0x01 = 0x43 should be stored at address 0x0010 after execution
+    // bus_write_byte(&ce, 0x8007, INS_SEC);
+    // bus_write_byte(&ce, 0x8008, INS_ADC_ZP);
+    // bus_write_byte(&ce, 0x8009, 0x10); // 0x43 + 0x43 + 0x01 (carry) = 0x87 should be stored in the accumulator after execution
+    // bus_write_byte(&ce, 0x800A, INS_TAX); // Accumulator value (0x87) should be transferred to X register
+// #endif

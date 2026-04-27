@@ -1,0 +1,134 @@
+    // Constants
+    bus_write_byte(&ce, 0x0000, 0xAA);
+    bus_write_byte(&ce, 0x0010, 0x55);
+    bus_write_byte(&ce, 0x00DD, 0xF0);
+    bus_write_byte(&ce, 0x00ED, 0x0F);
+    // Instructions
+#ifdef ROL_TESTS
+    // 0xAA: 10101010 -> After ROL: 0x54 with Carry=1
+    // 0x55: 01010101 -> After ROL: 0xAB with Carry=0
+    // 0xF0: 11110000 -> After ROL: 0xE0 with Carry=1
+    // 0x0F: 00001111 -> After ROL: 0x1F with Carry=0
+    // FIRST TEST
+    bus_write_byte(&ce, 0x8000, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8001, 0xAA);
+    bus_write_byte(&ce, 0x8002, INS_ROL_A);
+    bus_write_byte(&ce, 0x8003, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8004, 0x55);
+    bus_write_byte(&ce, 0x8005, INS_ROL_A);
+    bus_write_byte(&ce, 0x8006, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8007, 0xF0);
+    bus_write_byte(&ce, 0x8008, INS_ROL_A);
+    bus_write_byte(&ce, 0x8009, INS_LDA_IM);
+    bus_write_byte(&ce, 0x800A, 0x0F);
+    bus_write_byte(&ce, 0x800B, INS_ROL_A);
+    // SECOND TEST
+    bus_write_byte(&ce, 0x800C, INS_LDX_IM);
+    bus_write_byte(&ce, 0x800D, 0x10);
+    bus_write_byte(&ce, 0x800E, INS_ROL_ZP);
+    bus_write_byte(&ce, 0x800F, 0x00);
+    bus_write_byte(&ce, 0x8010, INS_ROL_ZPX);
+    bus_write_byte(&ce, 0x8011, 0x00);
+    bus_write_byte(&ce, 0x8012, INS_ROL_ABS);
+    bus_write_byte(&ce, 0x8013, 0xDD);
+    bus_write_byte(&ce, 0x8014, 0x00);
+    bus_write_byte(&ce, 0x8015, INS_ROL_ABSX);
+    bus_write_byte(&ce, 0x8016, 0xDD);
+    bus_write_byte(&ce, 0x8017, 0x00);
+#endif
+#ifdef ROR_TESTS
+    // 0xAA: 10101010 -> After ROR: 0x55 with Carry=0
+    // 0x55: 01010101 -> After ROR: 0x2A with Carry=1
+    // 0xF0: 11110000 -> After ROR: 0xF8 with Carry=0
+    // 0x0F: 00001111 -> After ROR: 0x07 with Carry=1
+    // FIRST TEST
+    bus_write_byte(&ce, 0x8000, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8001, 0xAA);
+    bus_write_byte(&ce, 0x8002, INS_ROR_A);
+    bus_write_byte(&ce, 0x8003, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8004, 0x55);
+    bus_write_byte(&ce, 0x8005, INS_ROR_A);
+    bus_write_byte(&ce, 0x8006, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8007, 0xF0);
+    bus_write_byte(&ce, 0x8008, INS_ROR_A);
+    bus_write_byte(&ce, 0x8009, INS_LDA_IM);
+    bus_write_byte(&ce, 0x800A, 0x0F);
+    bus_write_byte(&ce, 0x800B, INS_ROR_A);
+    // SECOND TEST
+    bus_write_byte(&ce, 0x800C, INS_LDX_IM);
+    bus_write_byte(&ce, 0x800D, 0x10);
+    bus_write_byte(&ce, 0x800E, INS_ROR_ZP);
+    bus_write_byte(&ce, 0x800F, 0x00);
+    bus_write_byte(&ce, 0x8010, INS_ROR_ZPX);
+    bus_write_byte(&ce, 0x8011, 0x00);
+    bus_write_byte(&ce, 0x8012, INS_ROR_ABS);
+    bus_write_byte(&ce, 0x8013, 0xDD);
+    bus_write_byte(&ce, 0x8014, 0x00);
+    bus_write_byte(&ce, 0x8015, INS_ROR_ABSX);
+    bus_write_byte(&ce, 0x8016, 0xDD);
+    bus_write_byte(&ce, 0x8017, 0x00);
+#endif
+#ifdef LSR_TESTS
+    // 0xAA: 10101010 -> After LSR: 0x55 with Carry=0
+    // 0x55: 01010101 -> After LSR: 0x2A with Carry=1
+    // 0xF0: 11110000 -> After LSR: 0x78 with Carry=0
+    // 0x0F: 00001111 -> After LSR: 0x07 with Carry=1
+    // FIRST TEST
+    bus_write_byte(&ce, 0x8000, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8001, 0xAA);
+    bus_write_byte(&ce, 0x8002, INS_LSR_A);
+    bus_write_byte(&ce, 0x8003, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8004, 0x55);
+    bus_write_byte(&ce, 0x8005, INS_LSR_A);
+    bus_write_byte(&ce, 0x8006, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8007, 0xF0);
+    bus_write_byte(&ce, 0x8008, INS_LSR_A);
+    bus_write_byte(&ce, 0x8009, INS_LDA_IM);
+    bus_write_byte(&ce, 0x800A, 0x0F);
+    bus_write_byte(&ce, 0x800B, INS_LSR_A);
+    // SECOND TEST
+    bus_write_byte(&ce, 0x800C, INS_LDX_IM);
+    bus_write_byte(&ce, 0x800D, 0x10);
+    bus_write_byte(&ce, 0x800E, INS_LSR_ZP);
+    bus_write_byte(&ce, 0x800F, 0x00);
+    bus_write_byte(&ce, 0x8010, INS_LSR_ZPX);
+    bus_write_byte(&ce, 0x8011, 0x00);
+    bus_write_byte(&ce, 0x8012, INS_LSR_ABS);
+    bus_write_byte(&ce, 0x8013, 0xDD);
+    bus_write_byte(&ce, 0x8014, 0x00);
+    bus_write_byte(&ce, 0x8015, INS_LSR_ABSX);
+    bus_write_byte(&ce, 0x8016, 0xDD);
+    bus_write_byte(&ce, 0x8017, 0x00);
+#endif
+#ifdef ASL_TESTS
+    // 0xAA: 10101010 -> After ASL: 0x54 with Carry=1
+    // 0x55: 01010101 -> After ASL: 0xAA with Carry=0
+    // 0xF0: 11110000 -> After ASL: 0xE0 with Carry=1
+    // 0x0F: 00001111 -> After ASL: 0x1E with Carry=0
+    // FIRST TEST
+    bus_write_byte(&ce, 0x8000, INS_LDX_IM);
+    bus_write_byte(&ce, 0x8001, 0x10);
+    bus_write_byte(&ce, 0x8002, INS_ASL_ZP);
+    bus_write_byte(&ce, 0x8003, 0x00);
+    bus_write_byte(&ce, 0x8004, INS_ASL_ZPX);
+    bus_write_byte(&ce, 0x8005, 0x00);
+    bus_write_byte(&ce, 0x8006, INS_ASL_ABS);
+    bus_write_byte(&ce, 0x8007, 0xDD);
+    bus_write_byte(&ce, 0x8008, 0x00);
+    bus_write_byte(&ce, 0x8009, INS_ASL_ABSX);
+    bus_write_byte(&ce, 0x800A, 0xDD);
+    bus_write_byte(&ce, 0x800B, 0x00);
+    // SECOND TEST
+    bus_write_byte(&ce, 0x800C, INS_LDA_IM);
+    bus_write_byte(&ce, 0x800D, 0xAA);
+    bus_write_byte(&ce, 0x800E, INS_ASL_A);
+    bus_write_byte(&ce, 0x800F, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8010, 0x55);
+    bus_write_byte(&ce, 0x8011, INS_ASL_A);
+    bus_write_byte(&ce, 0x8012, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8013, 0xF0);
+    bus_write_byte(&ce, 0x8014, INS_ASL_A);
+    bus_write_byte(&ce, 0x8015, INS_LDA_IM);
+    bus_write_byte(&ce, 0x8016, 0x0F);
+    bus_write_byte(&ce, 0x8017, INS_ASL_A);
+#endif
