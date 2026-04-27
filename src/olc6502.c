@@ -509,7 +509,12 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->PC = get_absolute_address(cpu, &cycles);
             break;
         case INS_JMP_IND:
-            printf("NOT IMPLEMENTED: JMP (indirect)\n");
+            addr = get_absolute_address(cpu, &cycles);
+            // 6502 bug: if the low byte of the address is 0xFF, the high byte is fetched from the beginning of the page instead of the next byte
+            uint16_t addr_high = (addr & 0xFF00) | ((addr + 1) & 0x00FF);
+            uint16_t target = (bus_read_byte(cpu->CE, addr_high) << 8) | bus_read_byte(cpu->CE, addr);
+            cycles -= 2;
+            cpu->PC = target;
             break;
         case INS_JSR:
             addr = get_absolute_address(cpu, &cycles);
