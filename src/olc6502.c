@@ -527,7 +527,16 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cycles -= 3;
             break;
         case INS_BRK:
-            printf("NOT IMPLEMENTED: BRK\n");
+            fetch_operand(cpu, &cycles); // BRK has a padding byte that is ignored
+            // push PC high byte to stack
+            // push PC low byte to stack
+            push_word_to_stack(cpu, cpu->PC, &cycles);
+            // push NV11DIZC flags to stack
+            push_byte_to_stack(cpu, cpu->PS.value | 0x10, &cycles); // Set the Break flag (bit 4) when pushing to stack
+            // cpu->PS.I = 1; // Set Interrupt Disable Flag
+            // cpu->I_nxt = 1; // Set delayed Interrupt Disable Flag
+            // PC = 0xFFFE (the IRQ vector)
+            cycles -= 3;
             break;
         case INS_RTI:
             printf("NOT IMPLEMENTED: RTI\n");
