@@ -144,6 +144,16 @@ void push_byte_to_stack(olc6502_t* cpu, uint8_t value, int32_t* cycles);
 void push_word_to_stack(olc6502_t* cpu, uint16_t value, int32_t* cycles);
 
 /**
+ * @brief Pull a byte from the stack and consume 1 cycle
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 1
+ * 
+ * @return The byte value pulled from the stack
+ */
+uint8_t pull_byte_from_stack(olc6502_t* cpu, int32_t* cycles);
+
+/**
  * @brief Pull a 16-bit word from the stack and consume 2 cycles
  * 
  * @param cpu Pointer to the CPU state

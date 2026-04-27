@@ -878,11 +878,20 @@ void push_word_to_stack(olc6502_t* cpu, uint16_t value, int32_t* cycles) {
     push_byte_to_stack(cpu, value & 0xFF, cycles); // Push low byte
 }
 
+uint8_t pull_byte_from_stack(olc6502_t* cpu, int32_t* cycles) {
+    cpu->SP++;
+    uint8_t value = bus_read_byte(cpu->CE, STACK_BASE + cpu->SP);
+    *cycles -= 1;
+    return value;
+}
+
 uint16_t pull_word_from_stack(olc6502_t* cpu, int32_t* cycles) {
-    cpu->SP++;
-    uint16_t low = bus_read_byte(cpu->CE, STACK_BASE + cpu->SP); // Pull low byte
-    cpu->SP++;
-    uint16_t high = bus_read_byte(cpu->CE, STACK_BASE + cpu->SP); // Pull high byte
-    *cycles -= 2;
+    uint8_t low = pull_byte_from_stack(cpu, cycles); // Pull low byte
+    uint8_t high = pull_byte_from_stack(cpu, cycles); // Pull high byte
+    // cpu->SP++;
+    // uint16_t low = bus_read_byte(cpu->CE, STACK_BASE + cpu->SP); // Pull low byte
+    // cpu->SP++;
+    // uint16_t high = bus_read_byte(cpu->CE, STACK_BASE + cpu->SP); // Pull high byte
+    // *cycles -= 2;
     return (high << 8) | low;
 }
