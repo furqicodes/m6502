@@ -146,7 +146,7 @@
 #define INS_CLV 0xB8
 
 //Arithmetic
-#define INS_ADC 0x69
+#define INS_ADC_IM 0x69
 #define INS_ADC_ZP 0x65
 #define INS_ADC_ZPX 0x75
 #define INS_ADC_ABS 0x6D
@@ -155,7 +155,7 @@
 #define INS_ADC_INDX 0x61
 #define INS_ADC_INDY 0x71
 
-#define INS_SBC 0xE9
+#define INS_SBC_IM 0xE9
 #define INS_SBC_ABS 0xED
 #define INS_SBC_ZP 0xE5
 #define INS_SBC_ZPX 0xF5

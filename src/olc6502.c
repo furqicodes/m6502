@@ -732,7 +732,7 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             }
         }
     
-        // ADC instructions
+        // ADC/SBC instructions
         if (((aaa == 3) | (aaa == 7)) && cc == 1) {
             // bbb=0b000 : ADC indirect X
             // bbb=0b001 : ADC zero page
@@ -783,12 +783,12 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
                 fetched = bus_read_byte(cpu->CE, addr);
             }
 
-            if (aaa == 7) {
-                fetched = ~fetched;
-            }
+            // If it's SBC, take the two's complement of the fetched value
+            uint16_t value = (aaa == 7) ? ~((uint16_t)fetched) + 1 : (uint16_t)fetched;
 
-            uint16_t sum = (uint16_t)cpu->A + (uint16_t)fetched + (cpu->PS.C ? 1 : 0);
-            cpu->PS.V = ((sum ^ cpu->A) & (sum ^ fetched) & 0x80) != 0;
+            uint16_t sum = (uint16_t)cpu->A + value + cpu->PS.C;
+            // printf("ADC/SBC: 0x%02X + 0x%04X + C=%d = 0x%02X\n", cpu->A, value, cpu->PS.C, sum & 0xFF);
+            cpu->PS.V = ((sum ^ (uint16_t)cpu->A) & (sum ^ value) & 0x0080) != 0;
             cpu->PS.C = sum > 0xFF;
             cpu->A = (uint8_t)sum;
             update_flags_from_register(cpu, cpu->A);
