@@ -123,6 +123,15 @@ uint16_t get_indexed_indirectY(olc6502_t* cpu, int32_t* cycles);
 uint16_t get_zp_address(olc6502_t* cpu, int32_t* cycles);
 
 /**
+ * @brief Push a byte onto the stack and consume 1 cycle
+ * 
+ * @param cpu Pointer to the CPU state
+ * @param value The byte value to push onto the stack
+ * @param cycles Pointer to the remaining cycles, which will be decremented by 1
+ */
+void push_byte_to_stack(olc6502_t* cpu, uint8_t value, int32_t* cycles);
+
+/**
  * @brief Push a 16-bit word onto the stack and consume 2 cycles
  * 
  * @param cpu Pointer to the CPU state
