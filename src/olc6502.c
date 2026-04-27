@@ -262,6 +262,27 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             update_flags_from_register(cpu, cpu->A);
             cycles -= 1;
             break;
+        // Arithmetic type instructions
+        case INS_INX:
+            cpu->X += 1;
+            update_flags_from_register(cpu, cpu->X);
+            cycles -= 1;
+            break;
+        case INS_DEX:
+            cpu->X -= 1;
+            update_flags_from_register(cpu, cpu->X);
+            cycles -= 1;
+            break;
+        case INS_INY:
+            cpu->Y += 1;
+            update_flags_from_register(cpu, cpu->Y);
+            cycles -= 1;
+            break;
+        case INS_DEY:
+            cpu->Y -= 1;
+            update_flags_from_register(cpu, cpu->Y);
+            cycles -= 1;
+            break;
         // Shift type instructions
         case INS_ASL_A:
             fetched = cpu->A;
