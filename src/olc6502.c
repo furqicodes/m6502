@@ -494,99 +494,6 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->PS.Z = (fetched & cpu->A) == 0;
             cpu->PS.value |= (fetched & 0xC0);
             break;
-        // Compare type instructions
-        case INS_CMP_IM:
-            fetched = fetch_operand(cpu, &cycles);
-            cpu->PS.C = (cpu->A >= fetched);
-            update_flags_from_register(cpu, cpu->A - fetched);
-            break;
-        case INS_CMP_ZP:
-            fetched = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
-            cycles -= 1;
-            cpu->PS.C = (cpu->A >= fetched);
-            update_flags_from_register(cpu, cpu->A - fetched);
-            break;
-        case INS_CMP_ZPX:
-            addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
-            fetched = bus_read_byte(cpu->CE, addr);
-            cycles -= 2;
-            cpu->PS.C = (cpu->A >= fetched);
-            update_flags_from_register(cpu, cpu->A - fetched);
-            break;
-        case INS_CMP_ABS:
-            addr = get_absolute_address(cpu, &cycles);
-            fetched = bus_read_byte(cpu->CE, addr);
-            cycles -= 1;
-            cpu->PS.C = (cpu->A >= fetched);
-            update_flags_from_register(cpu, cpu->A - fetched);
-            break;
-        case INS_CMP_ABSX:
-            addr = get_absolute_addressX(cpu, &cycles);
-            fetched = bus_read_byte(cpu->CE, addr);
-            cycles -= oops_cycle ? 2 : 1;
-            oops_cycle = false;
-            cpu->PS.C = (cpu->A >= fetched);
-            update_flags_from_register(cpu, cpu->A - fetched);
-            break;
-        case INS_CMP_ABSY:
-            addr = get_absolute_addressY(cpu, &cycles);
-            fetched = bus_read_byte(cpu->CE, addr);
-            cycles -= oops_cycle ? 2 : 1;
-            oops_cycle = false;
-            cpu->PS.C = (cpu->A >= fetched);
-            update_flags_from_register(cpu, cpu->A - fetched);
-            break;
-        case INS_CMP_INDX:
-            addr = get_indexed_indirectX(cpu, &cycles);
-            fetched = bus_read_byte(cpu->CE, addr);
-            cycles -= 2;
-            cpu->PS.C = (cpu->A >= fetched);
-            update_flags_from_register(cpu, cpu->A - fetched);
-            break;
-        case INS_CMP_INDY:
-            addr = get_indexed_indirectY(cpu, &cycles);
-            fetched = bus_read_byte(cpu->CE, addr);
-            cycles -= oops_cycle ? 2 : 1;
-            oops_cycle = false;
-            cpu->PS.C = (cpu->A >= fetched);
-            update_flags_from_register(cpu, cpu->A - fetched);
-            break;
-        case INS_CPX_IM:
-            fetched = fetch_operand(cpu, &cycles);
-            cpu->PS.C = (cpu->X >= fetched);
-            update_flags_from_register(cpu, cpu->X - fetched);
-            break;
-        case INS_CPX_ZP:
-            fetched = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
-            cycles -= 1;
-            cpu->PS.C = (cpu->X >= fetched);
-            update_flags_from_register(cpu, cpu->X - fetched);
-            break;
-        case INS_CPX_ABS:
-            addr = get_absolute_address(cpu, &cycles);
-            fetched = bus_read_byte(cpu->CE, addr);
-            cycles -= 1;
-            cpu->PS.C = (cpu->X >= fetched);
-            update_flags_from_register(cpu, cpu->X - fetched);
-            break;
-        case INS_CPY_IM:
-            fetched = fetch_operand(cpu, &cycles);
-            cpu->PS.C = (cpu->Y >= fetched);
-            update_flags_from_register(cpu, cpu->Y - fetched);
-            break;
-        case INS_CPY_ZP:
-            fetched = bus_read_byte(cpu->CE, get_zp_address(cpu, &cycles));
-            cycles -= 1;
-            cpu->PS.C = (cpu->Y >= fetched);
-            update_flags_from_register(cpu, cpu->Y - fetched);
-            break;
-        case INS_CPY_ABS:
-            addr = get_absolute_address(cpu, &cycles);
-            fetched = bus_read_byte(cpu->CE, addr);
-            cycles -= 1;
-            cpu->PS.C = (cpu->Y >= fetched);
-            update_flags_from_register(cpu, cpu->Y - fetched);
-            break;
         // Branch type instructions
         case INS_BCC:
             branch_if(cpu, &cycles, !cpu->PS.C);
@@ -793,6 +700,59 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->A = (uint8_t)sum;
             update_flags_from_register(cpu, cpu->A);
         }
+    
+        // CMP/CPX/CPY instructions
+        if (((cc == 1) && (aaa == 6)) || 
+            ((cc == 0) && (aaa > 5) && (bbb < 4) && (bbb != 0b010)) 
+        ) {
+            switch (bbb) {
+            case 0b000: 
+                addr = get_indexed_indirectX(cpu, &cycles); 
+                cycles -= 2; 
+                break;
+            case 0b001: 
+                addr = get_zp_address(cpu, &cycles);
+                cycles--;
+                break;
+            case 0b010: 
+                fetched = fetch_operand(cpu, &cycles); // Immediate value is the operand
+                break;
+            case 0b011: 
+                addr = get_absolute_address(cpu, &cycles);
+                cycles -= 1;
+                break;
+            case 0b100:
+                addr = get_indexed_indirectY(cpu, &cycles);
+                cycles -= oops_cycle ? 2 : 1;
+                oops_cycle = false;
+                break;
+            case 0b101: 
+                addr = (get_zp_address(cpu, &cycles) + cpu->X) & 0xFF;
+                cycles--;
+                break;
+            case 0b110: 
+                addr = get_absolute_addressY(cpu, &cycles);
+                cycles -= oops_cycle ? 2 : 1;
+                oops_cycle = false;
+                break;
+            case 0b111: 
+                addr = get_absolute_addressX(cpu, &cycles);
+                cycles -= oops_cycle ? 2 : 1;
+                oops_cycle = false;
+                break;
+            }
+
+            temp = (cc == 1) ? cpu->A : (aaa == 7) ? cpu->X : cpu->Y;
+
+            if (bbb != 0b010) {
+                fetched = bus_read_byte(cpu->CE, addr);
+            }
+
+            uint16_t value = (uint16_t)temp - (uint16_t)fetched;
+            cpu->PS.C = temp >= fetched;
+            update_flags_from_register(cpu, value & 0x00FF);
+        }
+
     }
     return requested_cycles - cycles;
 }
