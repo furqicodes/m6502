@@ -47,6 +47,7 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles);
 
 
 /* Helper functions */
+// TODO: https://www.nesdev.org/wiki/CPU_ALL#:~:text=Reading%20from%20memory%20that%20is%20not%20mapped%20to%20anything%20normally%20returns%20open%20bus.%20The%20cartridge%20hardware%20may%20affect%20open%20bus%20behavior%20across%20the%20entire%20CPU%20address%20space%2C%20such%20as%20by%20pulling%20bits%20high%20or%20low.
 
 /**
 * @brief Fetch an operand from memory and consume 1 cycle
