@@ -858,12 +858,15 @@ uint8_t fetch_operand(olc6502_t* cpu, int32_t* cycles) {
     return bus_read_byte(cpu->CE, cpu->PC++);
 }
 
+void push_byte_to_stack(olc6502_t* cpu, uint8_t value, int32_t* cycles) {
+    bus_write_byte(cpu->CE, STACK_BASE + cpu->SP, value);
+    cpu->SP--;
+    *cycles -= 1;
+}
+
 void push_word_to_stack(olc6502_t* cpu, uint16_t value, int32_t* cycles) {
-    bus_write_byte(cpu->CE, STACK_BASE + cpu->SP, value >> 8); // Push high byte
-    cpu->SP--;
-    bus_write_byte(cpu->CE, STACK_BASE + cpu->SP, value & 0xFF); // Push low byte
-    cpu->SP--;
-    *cycles -= 2;
+    push_byte_to_stack(cpu, value >> 8, cycles); // Push high byte
+    push_byte_to_stack(cpu, value & 0xFF, cycles); // Push low byte
 }
 
 uint16_t pull_word_from_stack(olc6502_t* cpu, int32_t* cycles) {
