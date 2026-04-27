@@ -47,17 +47,6 @@ inline bool page_boundary_crossed(uint16_t addr1, uint16_t addr2) {
     return (addr1 & 0xFF00) != (addr2 & 0xFF00);
 }
 
-static inline void branch_if(olc6502_t* cpu, int32_t* cycles, bool condition) {
-    if (!condition) {
-        fetch_operand(cpu, cycles);
-        return;
-    }
-    uint16_t old_PC = cpu->PC;
-    int8_t offset = (int8_t)fetch_operand(cpu, cycles);
-    cpu->PC += offset;
-    *cycles -= page_boundary_crossed(old_PC - 1, cpu->PC) ? 2 : 1;
-}
-
 int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
     // Opcode section fields
     uint8_t aaa, bbb, cc;
@@ -515,31 +504,6 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->PS.Z = (fetched & cpu->A) == 0;
             cpu->PS.value |= (fetched & 0xC0);
             break;
-        // Branch type instructions
-        case INS_BCC:
-            branch_if(cpu, &cycles, !cpu->PS.C);
-            break;
-        case INS_BCS:
-            branch_if(cpu, &cycles, cpu->PS.C);
-            break;
-        case INS_BEQ:
-            branch_if(cpu, &cycles, cpu->PS.Z);
-            break;
-        case INS_BNE:
-            branch_if(cpu, &cycles, !cpu->PS.Z);
-            break;
-        case INS_BPL:
-            branch_if(cpu, &cycles, !cpu->PS.N);
-            break;
-        case INS_BMI:
-            branch_if(cpu, &cycles, cpu->PS.N);
-            break;
-        case INS_BVC:
-            branch_if(cpu, &cycles, !cpu->PS.V);
-            break;
-        case INS_BVS:
-            branch_if(cpu, &cycles, cpu->PS.V);
-            break;
         // Jump type instructions
         case INS_JMP_ABS:
             cpu->PC = get_absolute_address(cpu, &cycles);
@@ -806,6 +770,30 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
 
             // Write back the result
             bus_write_byte(cpu->CE, addr, temp);
+        }
+
+        // Branch type instructions
+        if( cc == 0 && bbb == 4 ) {
+            bool should_branch = false;
+            switch (aaa) {
+            case 0b000: should_branch = !cpu->PS.N; break;  // BPL
+            case 0b001: should_branch = cpu->PS.C; break;   // BMI
+            case 0b010: should_branch = cpu->PS.Z; break;   // BVC
+            case 0b011: should_branch = !cpu->PS.Z; break;  // BVS
+            case 0b100: should_branch = !cpu->PS.N; break;  // BCC
+            case 0b101: should_branch = cpu->PS.N; break;   // BCS
+            case 0b110: should_branch = !cpu->PS.V; break;  // BNE
+            case 0b111: should_branch = cpu->PS.V; break;   // BEQ
+            }
+            cycles--;
+
+            if (should_branch) {
+                uint16_t old_PC = cpu->PC;
+                int8_t offset = (int8_t)fetch_operand(cpu, &cycles);
+                cpu->PC += offset;
+
+                cycles -= page_boundary_crossed(old_PC - 1, cpu->PC) ? 1 : 0;
+            }
         }
 
     }
