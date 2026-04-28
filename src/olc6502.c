@@ -536,7 +536,7 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             cpu->PS.I = 1;
             cpu->I_nxt = 1;
             cpu->PC = IRQ_VECTOR;
-            cycles -= 2;
+            cpu->PC = get_absolute_address(cpu, &cycles);
             break;
         case INS_RTI:
             fetched = pull_byte_from_stack(cpu, &cycles);
