@@ -47,7 +47,7 @@ int main(void)
             printf("ROM size (%ld bytes) exceeds PRG ROM size (%d bytes). Truncating.\n", rom_size, PRG_ROM_SIZE);
             rom_size = PRG_ROM_SIZE;
         }
-        fread(mem.data + CPU_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE + SRAM_SIZE, 1, rom_size, rom_file);
+        fread(mem.data + M6502_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE + SRAM_SIZE, 1, rom_size, rom_file);
         printf("Loaded ROM of size %ld bytes into memory\n", rom_size);
     } else {
         printf("Failed to open ROM file. Continuing with empty memory.\n");

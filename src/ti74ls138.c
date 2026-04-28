@@ -27,19 +27,19 @@ uint16_t decode_address(m74ls138_t* dev, uint16_t emulated_address) {
             hw_addr = chip_select_cpu_ram(emulated_address);
             break;
         case CE_PPU:
-            hw_addr = chip_select_ppu(emulated_address) + CPU_RAM_SIZE;
+            hw_addr = chip_select_ppu(emulated_address) + M6502_RAM_SIZE;
             break;
         case CE_EXPANSION:
-            hw_addr = chip_select_expansion_rom(emulated_address) + CPU_RAM_SIZE + PPU_REGISTERS_SIZE;
+            hw_addr = chip_select_expansion_rom(emulated_address) + M6502_RAM_SIZE + PPU_REGISTERS_SIZE;
             break;
         case CE_SRAM:
-            hw_addr = chip_select_sram(emulated_address) + CPU_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE;
+            hw_addr = chip_select_sram(emulated_address) + M6502_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE;
             break;
         case CE_PRG_ROM0:
         case CE_PRG_ROM1:
         case CE_PRG_ROM2:
         case CE_PRG_ROM3:
-            hw_addr = chip_select_prg_rom(emulated_address) + CPU_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE + SRAM_SIZE;
+            hw_addr = chip_select_prg_rom(emulated_address) + M6502_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE + SRAM_SIZE;
             break;
         default:
             printf("Invalid CE line: %d\n", dev->CE);
