@@ -75,9 +75,9 @@ int clock_command(int argc, char **argv) {
         printf("Usage: clock <cycles>\n");
         return -1;
     }
-    uint32_t cycles = (uint32_t)atoi(argv[1]);
+    int cycles = atoi(argv[1]);
     int actual_cycles = olc6502_clock(&cpu, cycles);
-    printf("Requested %u cycles, executed %d cycles\n", cycles, actual_cycles);
+    printf("Requested %d cycles, executed %d cycles\n", cycles, actual_cycles);
     print_cpu_status(&cpu);
     return 0;
 }
