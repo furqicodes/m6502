@@ -795,22 +795,20 @@ int32_t olc6502_clock(olc6502_t* cpu, int32_t cycles) {
             bool should_branch = false;
             switch (aaa) {
             case 0b000: should_branch = !cpu->PS.N; break;  // BPL
-            case 0b001: should_branch = cpu->PS.C; break;   // BMI
-            case 0b010: should_branch = cpu->PS.Z; break;   // BVC
-            case 0b011: should_branch = !cpu->PS.Z; break;  // BVS
-            case 0b100: should_branch = !cpu->PS.N; break;  // BCC
-            case 0b101: should_branch = cpu->PS.N; break;   // BCS
-            case 0b110: should_branch = !cpu->PS.V; break;  // BNE
-            case 0b111: should_branch = cpu->PS.V; break;   // BEQ
+            case 0b001: should_branch =  cpu->PS.N; break;  // BMI
+            case 0b010: should_branch = !cpu->PS.V; break;  // BVC
+            case 0b011: should_branch =  cpu->PS.V; break;  // BVS
+            case 0b100: should_branch = !cpu->PS.C; break;  // BCC
+            case 0b101: should_branch =  cpu->PS.C; break;  // BCS
+            case 0b110: should_branch = !cpu->PS.Z; break;  // BNE
+            case 0b111: should_branch =  cpu->PS.Z; break;  // BEQ
             }
-            cycles--;
-
+            fetched = (int8_t)fetch_operand(cpu, &cycles);
+            
             if (should_branch) {
                 uint16_t old_PC = cpu->PC;
-                int8_t offset = (int8_t)fetch_operand(cpu, &cycles);
-                cpu->PC += offset;
-
-                cycles -= page_boundary_crossed(old_PC - 1, cpu->PC) ? 1 : 0;
+                cpu->PC += (int8_t)fetched;
+                cycles -= page_boundary_crossed(old_PC - 1, cpu->PC) ? 2 : 1;
             }
         }
 
