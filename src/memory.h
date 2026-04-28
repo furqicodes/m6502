@@ -5,11 +5,15 @@
 #define MEMORY_MAX_SIZE 1024 * 64
 
 // Memory banks constants
-#define M6502_RAM_SIZE 2048           // 2KB internal RAM
-#define PPU_REGISTERS_SIZE 8        // 8 PPU registers
-#define EXPANSION_ROM_SIZE 8192     // 8KB expansion ROM
-#define SRAM_SIZE 8192              // 8KB SRAM
-#define PRG_ROM_SIZE 32768          // 32KB PRG ROM
+#define M6502_RAM_SIZE 0x800        // 2KB internal RAM
+#define PPU_REGISTERS_SIZE 0x8      // 8 PPU registers
+#ifdef NES_USE_EXPANSION_ROM
+    #define EXPANSION_ROM_SIZE 0x2000   // 8KB expansion ROM    $4020-$5FFF
+#else
+    #define EXPANSION_ROM_SIZE 0x0000   // No expansion ROM
+#endif
+#define SRAM_SIZE 0x2000            // 8KB SRAM             $6000-$7FFF
+#define PRG_ROM_SIZE 0x8000         // 32KB PRG ROM         $8000-$FFFF
 #define TOTAL_MEMORY_SIZE \
     (M6502_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE + SRAM_SIZE + PRG_ROM_SIZE)
 
