@@ -13,10 +13,12 @@ int clock_command(int argc, char **argv);
 int print_command(int argc, char **argv);
 int reset_command(int argc, char **argv);
 int inspect_memory_command(int argc, char **argv);
+int run_command(int argc, char **argv);
 SHELL_COMMAND(clock, "Run the CPU for a specified number of cycles", clock_command);
 SHELL_COMMAND(print, "Print the current CPU status", print_command);
 SHELL_COMMAND(reset, "Reset the CPU to its initial state", reset_command);
 SHELL_COMMAND(inspect, "Inspect memory at a specified address range", inspect_memory_command);
+SHELL_COMMAND(run, "Run the CPU", run_command);
 
 static memory_t mem; // Initialize memory with zeros to prevent uninitialized access warnings
 static m74ls138_t ce;
@@ -76,6 +78,25 @@ int clock_command(int argc, char **argv) {
     uint32_t cycles = (uint32_t)atoi(argv[1]);
     int actual_cycles = olc6502_clock(&cpu, cycles);
     printf("Requested %u cycles, executed %d cycles\n", cycles, actual_cycles);
+    print_cpu_status(&cpu);
+    return 0;
+}
+
+int run_command(int argc, char **argv) {
+    if (argc != 1) {
+        printf("Usage: run\n");
+        return -1;
+    }
+    (void)argv; // Unused parameter
+    int total_cycles = 0;
+    while (cpu.PS.B == 0) { // Run until a BRK instruction is executed, which sets the Break flag
+        int cycles = olc6502_clock(&cpu, 1); // Run one cycle at a time to allow for interrupts and other events
+        total_cycles += cycles;
+        if (cycles == 0) {
+            break; // Stop if the CPU is halted or waiting for an event
+        }
+    }
+    printf("CPU halted after executing %d cycles\n", total_cycles);
     print_cpu_status(&cpu);
     return 0;
 }
