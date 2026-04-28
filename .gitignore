@@ -9,3 +9,4 @@ bin/
 *.d
 *.a
 *.out
+compile_commands.json
