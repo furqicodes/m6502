@@ -1,9 +1,9 @@
  .org $8000
-reset:
+start:
  ldx #$01 ; x=1
  stx $00 	; stores x at 0x0000
  sec 			; clear carry
- ldy #$07 ; calculate 7th fibonacci number 0x0D
+ ldy #$0D ; calculate 13th fibonacci number 0xE9
  tya			; transfer Y->A
  sbc #$03 
  tay			; transfer A->Y
@@ -19,9 +19,18 @@ loop:
  stx $00
  dey
  bne loop
- jmp reset
+ 
+compare:
+ txa	; Copy result into accumulator for comparison
+ cmp #$E9 ; Compare with expected result
+ beq irq ; Jump to irq_vector if correct result
+ brk ; sets the B flag in the stack if wrong result
+
+nmi:
+irq:
+ jmp irq
 
  .org $FFFA
- .word $9000
- .word reset
- rti
+ .word nmi
+ .word start
+ .word irq
