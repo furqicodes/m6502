@@ -1,3 +1,6 @@
 [submodule "RIOT"]
 	path = RIOT
 	url = https://github.com/RIOT-OS/RIOT.git
+[submodule "sep_riot_base"]
+	path = sep_riot_base
+	url = https://git.rz.tu-bs.de/theoretische-informatik/ti/extern/10_system/sep_riot_base.git
