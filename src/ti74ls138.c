@@ -1,4 +1,5 @@
 #include "ti74ls138.h"
+#include "program.h"
 
 int m74ls138_init(m74ls138_t* dev, memory_t* mem) {
     if (dev == NULL || mem == NULL) {
@@ -39,10 +40,8 @@ uint16_t decode_address(m74ls138_t* dev, uint16_t emulated_address) {
         case CE_PRG_ROM1:
         case CE_PRG_ROM2:
         case CE_PRG_ROM3:
-            hw_addr = chip_select_prg_rom(emulated_address) + M6502_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE + SRAM_SIZE;
+            hw_addr = chip_select_prg_rom(emulated_address);
             break;
-        default:
-            printf("Invalid CE line: %d\n", dev->CE);
     }
 
     #ifdef DEBUG
@@ -59,6 +58,9 @@ void bus_write_byte(m74ls138_t* dev, uint16_t address, uint8_t value) {
 
 uint8_t bus_read_byte(m74ls138_t* dev, uint16_t address) {
     uint16_t read_addr = decode_address(dev, address);
+    if (address >= 0x8000) {
+        return PROGMEM[read_addr];
+    }
     return memory_get(dev->ptr_mem, read_addr);
 }
 
@@ -69,9 +71,15 @@ void bus_write_word(m74ls138_t* dev, uint16_t address, uint16_t value) {
 }
 
 uint16_t bus_read_word(m74ls138_t* dev, uint16_t address) {
+    uint8_t low_byte, high_byte;
     uint16_t read_addr = decode_address(dev, address);
-    uint8_t low_byte = memory_get(dev->ptr_mem, read_addr);
-    uint8_t high_byte = memory_get(dev->ptr_mem, read_addr + 1);
+    if (address >= 0x8000) {
+        low_byte = PROGMEM[read_addr];
+        high_byte = PROGMEM[read_addr + 1];
+    } else {
+        low_byte = memory_get(dev->ptr_mem, read_addr);
+        high_byte = memory_get(dev->ptr_mem, read_addr + 1);
+    }
     return (high_byte << 8) | low_byte; // Combine high and low bytes
 }
 

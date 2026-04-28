@@ -38,22 +38,6 @@ int main(void)
         printf("CPU initialized to power-up state\n");
     }
 
-    FILE* rom_file = fopen("fib.nes", "rb");
-    if (rom_file) {
-        fseek(rom_file, 0, SEEK_END);
-        long rom_size = ftell(rom_file);
-        fseek(rom_file, 0, SEEK_SET);
-        if (rom_size > PRG_ROM_SIZE) {
-            printf("ROM size (%ld bytes) exceeds PRG ROM size (%d bytes). Truncating.\n", rom_size, PRG_ROM_SIZE);
-            rom_size = PRG_ROM_SIZE;
-        }
-        fread(mem.data + M6502_RAM_SIZE + PPU_REGISTERS_SIZE + EXPANSION_ROM_SIZE + SRAM_SIZE, 1, rom_size, rom_file);
-        printf("Loaded ROM of size %ld bytes into memory\n", rom_size);
-    } else {
-        printf("Failed to open ROM file. Continuing with empty memory.\n");
-    }
-    fclose(rom_file);
-
     olc6502_reset(&cpu, &(int32_t){9}); // Reset the CPU to set the PC to the reset vector
     char buffer[SHELL_DEFAULT_BUFSIZE];
     shell_run(NULL, buffer, SHELL_DEFAULT_BUFSIZE);
