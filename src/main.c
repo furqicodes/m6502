@@ -18,7 +18,7 @@ SHELL_COMMAND(clock, "Run the CPU for a specified number of cycles", clock_comma
 SHELL_COMMAND(print, "Print the current CPU status", print_command);
 SHELL_COMMAND(reset, "Reset the CPU to its initial state", reset_command);
 SHELL_COMMAND(inspect, "Inspect memory at a specified address range", inspect_memory_command);
-SHELL_COMMAND(run, "Run the CPU", run_command);
+SHELL_COMMAND(run, "Run the CPU until it halts or triggers an interrupt", run_command);
 
 static memory_t mem; // Initialize memory with zeros to prevent uninitialized access warnings
 static m74ls138_t ce;
@@ -89,14 +89,17 @@ int run_command(int argc, char **argv) {
     }
     (void)argv; // Unused parameter
     int total_cycles = 0;
-    while (cpu.PS.B == 0) { // Run until a BRK instruction is executed, which sets the Break flag
+    uint16_t irq_address = bus_read_word(&ce, IRQ_VECTOR);
+    while (cpu.PC != irq_address) { // Run until an IRQ is triggered, which indicates the end of the program
         int cycles = olc6502_clock(&cpu, 1); // Run one cycle at a time to allow for interrupts and other events
         total_cycles += cycles;
         if (cycles == 0) {
             break; // Stop if the CPU is halted or waiting for an event
         }
     }
-    printf("CPU halted after executing %d cycles\n", total_cycles);
+    uint8_t is_break = (cpu.SP == STACK_BASE - 3) ? 0 :
+        ((bus_read_byte(&ce, cpu.SP + 1) & 0x10) != 0); // Check the Break Flag in the last pushed stack frame
+    printf("CPU halted after executing %d cycles. Break Flag: %d\n", total_cycles, is_break);
     print_cpu_status(&cpu);
     return 0;
 }
