@@ -43,17 +43,17 @@ IRQ_VECTOR	= $80C0
 
 ACIA_DATA   = $4100
 ACIA_STATUS = $4101
-ACIA_CMD    = $4102
-ACIA_CTRL   = $4103
+; ACIA_CMD    = $4102
+; ACIA_CTRL   = $4103
 
 IRQ:
     JMP IRQ								; HALT CPU
 
 RESET:
-    LDA     #$1F           ; 8-N-1, 19200 baud.
-    STA     ACIA_CTRL
-    LDA     #$0B           ; No parity, no echo, no interrupts.
-    STA     ACIA_CMD
+    ; LDA     #$1F           ; 8-N-1, 19200 baud.
+    ; STA     ACIA_CTRL
+    ; LDA     #$0B           ; No parity, no echo, no interrupts.
+    ; STA     ACIA_CMD
     LDA     #$1B           ; Begin with escape.
 
 NOTCR:
