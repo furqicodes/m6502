@@ -6,6 +6,10 @@
 #include "include/olc6502_constants.h"
 #include "ti74ls138.h"
 
+// ACIA registers
+#define ACIA_DATA       0x4100
+#define ACIA_STATUS     0x4101
+
 #include "shell.h"
 
 void print_cpu_status(olc6502_t* cpu);
@@ -14,11 +18,13 @@ int print_command(int argc, char **argv);
 int reset_command(int argc, char **argv);
 int inspect_memory_command(int argc, char **argv);
 int run_command(int argc, char **argv);
+int wozmon_command(int argc, char **argv);
 SHELL_COMMAND(clock, "Run the CPU for a specified number of cycles", clock_command);
 SHELL_COMMAND(print, "Print the current CPU status", print_command);
 SHELL_COMMAND(reset, "Reset the CPU to its initial state", reset_command);
 SHELL_COMMAND(inspect, "Inspect memory at a specified address range", inspect_memory_command);
 SHELL_COMMAND(run, "Run the CPU until it halts or triggers an interrupt", run_command);
+SHELL_COMMAND(wozmon, "Enter WOZMON monitor mode", wozmon_command);
 
 static memory_t mem; // Initialize memory with zeros to prevent uninitialized access warnings
 static m74ls138_t ce;
@@ -85,6 +91,54 @@ int run_command(int argc, char **argv) {
         ((bus_read_byte(&ce, cpu.SP + 1) & 0x10) != 0); // Check the Break Flag in the last pushed stack frame
     printf("CPU halted after executing %d cycles. Break Flag: %d\n", total_cycles, is_break);
     print_cpu_status(&cpu);
+    return 0;
+}
+
+int wozmon_command(int argc, char **argv) {
+    if (argc < 2) {
+        printf("Usage: wozmon <read/write> <empty/data>\n");
+        return -1;
+    }
+    uint16_t irq_address = bus_read_word(&ce, IRQ_VECTOR);
+    
+    if (strcmp(argv[1], "read") == 0) {
+
+        uint8_t mon_data = bus_read_byte(&ce, ACIA_DATA); // Monitor address for user input to step through cycles
+        uint8_t buf[0x0100] = {0}; // Buffer to store user input, initialized to zeros
+        size_t input_index = 0;
+        uint8_t rx_done = 0;
+        
+        while (cpu.PC != irq_address && rx_done == 0) { // Run until an IRQ is triggered, which indicates the end of the program
+            // Scan for user input to step through each cycle, allowing for interrupts and other events to be processed
+            uint8_t new_mon_data = bus_read_byte(&ce, ACIA_DATA);
+            // Check if new data received
+            if (new_mon_data != mon_data) {
+                buf[input_index] = new_mon_data;
+                mon_data = new_mon_data;
+                input_index++;
+                // If CR received, print the buffer and reset it for the next input
+                if (new_mon_data == 0x0D) {
+                    printf("WOZMON: %s\n", buf);
+                    input_index = 0; // Reset input index for the next command
+                    for (size_t i = 0; i < sizeof(buf); i++) {
+                        buf[i] = '\0'; // Clear the buffer after writing to memory
+                    }
+                    rx_done = 1; // Set the receive done flag
+                }
+            }
+            olc6502_clock(&cpu, 1);
+        }
+    }
+
+    else if (strcmp(argv[1], "write") == 0) {
+        char* input = (argc >= 3) ? argv[2] : ""; // Get the input string from command line arguments, default to empty string if not provided
+        for (size_t i = 0; i < sizeof(input) && input[i] != '\0'; i++) {
+            bus_write_byte(&ce, ACIA_DATA, input[i]); // Store user input in memory in ACIA_DATA
+            bus_write_byte(&ce, ACIA_STATUS, 0x10); // Signal the CPU that there is new data ready to be processed
+            olc6502_clock(&cpu, 1); // Run one cycle to allow the CPU to process the new input
+        }
+    }
+
     return 0;
 }
 
