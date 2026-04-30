@@ -147,7 +147,8 @@ NOTHEX:
     INC     STL            ; Increment store index.
     BNE     NEXTITEM       ; Get next item (no carry).
     INC     STH            ; Add carry to 'store index' high order.
-TONEXTITEM:     JMP     NEXTITEM       ; Get next command item.
+TONEXTITEM:     
+    JMP     NEXTITEM       ; Get next command item.
 
 RUN:
     JMP     (XAML)         ; Run at current XAM index.
@@ -156,7 +157,8 @@ NOTSTOR:
     BMI     XAMNEXT        ; B7 = 0 for XAM, 1 for BLOCK XAM.
 
     LDX     #$02           ; Byte count.
-SETADR:         LDA     L-1,X          ; Copy hex data to
+SETADR:         
+    LDA     L-1,X          ; Copy hex data to
     STA     STL-1,X        ;  'store index'.
     STA     XAML-1,X       ; And to 'XAM index'.
     DEX                    ; Next of 2 bytes.
@@ -178,7 +180,8 @@ PRDATA:
     JSR     ECHO           ; Output it.
     LDA     (XAML,X)       ; Get data byte at 'examine index'.
     JSR     PRBYTE         ; Output it in hex format.
-XAMNEXT:        STX     MODE           ; 0 -> MODE (XAM mode).
+XAMNEXT:        
+    STX     MODE           ; 0 -> MODE (XAM mode).
     LDA     XAML
     CMP     L              ; Compare 'examine index' to hex data.
     LDA     XAMH
